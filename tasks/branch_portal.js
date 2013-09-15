@@ -16,18 +16,19 @@ module.exports = function(grunt) {
 
     var done = this.async();
     var options = this.options({
-
-      // required:
-      // branch
-      // dir
-      // remote
-
       commit: false,
       tag: false,
       push: false
     });
     var project = {};
 
+    // Fail if required options are missing
+    ['branch', 'dir', 'remote'].forEach( function (element) {
+      if (!options.hasOwnProperty(element)) {
+        grunt.fail.warn('The "' + element + '" option is required.');
+        done(false);
+      }
+    });
 
     // Get project information
     function projectInfo (next) {
