@@ -105,22 +105,23 @@ module.exports = function(grunt) {
             next();
           });
         }
-
-        next();
+        else {
+          next();
+        }
       });
     }
 
     // Create the branch if it doesn't exist
     function branchInit (next) {
-      exec('git show-ref --verify --quiet refs/heads/' + options.branch, function (err, stdout) {
+      exec('git show-ref --verify --quiet refs/heads/' + options.branch, {cwd: options.dir}, function (err, stdout) {
         if (err) {
-          exec('git checkout --orphan ' + options.branch, function (err, stdout) {
+          exec('git checkout --orphan ' + options.branch, {cwd: options.dir}, function (err, stdout) {
             if (err) {
               grunt.fail.warn(err);
               done(false);
             }
             else {
-              grunt.log.write('Creating "' + options.branch + '" branch');
+              grunt.log.write('Creating new "' + options.branch + '" branch');
               next();
             }
           });
