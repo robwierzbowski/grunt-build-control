@@ -44,7 +44,7 @@ module.exports = function(grunt) {
           project.branch = stdout.split('/').pop();
           count -= 1;
           if (count === 0) {
-            next()
+            next();
           }
         }
       });
@@ -57,7 +57,7 @@ module.exports = function(grunt) {
           project.commit = stdout;
           count -= 1;
           if (count === 0) {
-            next()
+            next();
           }
         }
       });
@@ -71,7 +71,7 @@ module.exports = function(grunt) {
           project.commitMsg = stdout;
           count -= 1;
           if (count === 0) {
-            next()
+            next();
           }
         }
       });

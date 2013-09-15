@@ -3,8 +3,7 @@
   "description": "Create and manage 'portal' branches that contain only subdirectories of your main branch. Useful for publishing built code to Github Pages.",
   "version": "0.0.1",
   "homepage": "https://github.com/robwierzbowski/grunt-branch-portal",
-  "author": "Rob Wierzbowski <hello@robwierzbowski.com> (http://robwierzbowski)"
-  },
+  "author": "Rob Wierzbowski <hello@robwierzbowski.com> (http://robwierzbowski)",
   "repository": {
     "type": "git",
     "url": "git://github.com/robwierzbowski/grunt-branch-portal.git"
@@ -38,6 +37,5 @@
   },
   "keywords": [
     "gruntplugin"
-    //// Add keywords
   ]
 }
