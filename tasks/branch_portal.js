@@ -28,39 +28,53 @@ module.exports = function(grunt) {
     });
     var project = {};
 
-    //// Get project information
+
+    // Get project information
     function projectInfo (next) {
-      projectInfo.name = require('package.json').name;
+      // Super minimal flow control. Probably a better way to do this.
+      var count = 3;
+
+      project.name = require('package.json').name;
 
       exec('git symbolic-ref --quiet HEAD', function (err, stdout) {
         if (err) {
-          projectInfo.branch = 'false';
+          project.branch = 'false';
         }
         else {
-          projectInfo.branch = stdout.split('/').pop();
+          project.branch = stdout.split('/').pop();
+          count -= 1;
+          if (count === 0) {
+            next()
+          }
         }
       });
 
       exec('git rev-parse --short HEAD', function (err, stdout) {
         if (err) {
-          projectInfo.commit = 'false';
+          project.commit = 'false';
         }
         else {
-          projectInfo.commit = stdout;
+          project.commit = stdout;
+          count -= 1;
+          if (count === 0) {
+            next()
+          }
         }
       });
 
       exec('it show -s --format=%B HEAD', function (err, stdout) {
         if (err) {
-          projectInfo.commitMsg = 'false';
+          project.commitMsg = 'false';
         }
         else {
           //// Probably has some newlines in it, check how it looks
-          projectInfo.commitMsg = stdout;
+          project.commitMsg = stdout;
+          count -= 1;
+          if (count === 0) {
+            next()
+          }
         }
       });
-
-      next();
     }
 
     //// Set option = true defaults
