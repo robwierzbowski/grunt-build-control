@@ -9,8 +9,9 @@
 'use strict';
 
 module.exports = function(grunt) {
-  var exec = require('child_process').exec;
   var fs = require('fs');
+  var path = require('path');
+  var exec = require('child_process').exec;
 
   grunt.registerMultiTask('branch_portal', 'Work with branches that version a single directory.', function() {
 
@@ -84,30 +85,28 @@ module.exports = function(grunt) {
       });
     }
 
-    //// Set option = true defaults
-    //// need to cwd options.dir before these.
-
     // Create a git repo if one doesn't exist
     function gitInit (next) {
-      fs.stat('.git', function (err, stats) {
+      fs.stat(options.dir, function (err, stats) {
         if (err) {
-          done(err);
+          grunt.fail.warn('The target directory "' + options.dir + '" must exist.');
+          done(false);
         }
-        else if (!stats.isDirectory()) {
-          exec('git init', function (err, stdout) {
+      });
+
+      fs.stat(path.join(options.dir, '.git'), function (err, stats) {
+        if (err) {
+          exec('git init', {cwd: options.dir}, function (err, stdout) {
             if (err) {
               grunt.fail.warn(err);
               done(false);
             }
-            else {
-              grunt.log.write(stdout);
-              next();
-            }
+            grunt.log.write('Creating empty git repository in ' + options.dir);
+            next();
           });
         }
-        else {
-          next();
-        }
+
+        next();
       });
     }
 
