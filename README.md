@@ -8,20 +8,22 @@ branch_portal: {
     options: {
       branchName: 'the branch to make',
       dir: 'the directory to work in'
+      remote: ''
       ///
-      commit: 'false, automatic: ?what would this be...
-      / built from <app branch name>:<app commit>
-      , OR an interpolated string.',
-      tag: 'false, or interpolated string'
-      push: 'false, or {
-        remote: 
-        branch: '',
-      }
-      
-      [name, url[, force]] to push to
-      //
-      remote: '[url[, name][, force]] to push to
-      ///
+      commit: 'false,
+        true: built from <packageName> <appbranchname>:<appcommit>
+          // <packageName> commit message: <appcommitmsg>
+          // work from gruntfile dir, then cwd to 'dir'
+        OR an interpolated string.',
+      tag: 'false,
+        true: +0.1.0
+        `git describe --abbrev=0 --tags`: to get last tag
+        +1.1.1 any number, split, add, array.join
+        or interpolated string'
+        // warning last tag was not a semver
+      push: 'false,
+        true: git push <remote> HEAD:<branch>
+        or force: "" --force
     }
   },
 }
@@ -38,32 +40,36 @@ If desired, must manually create new gitignore in app, to be copied to dist.
 
 What is canonical repo? local or remote? Two ways to set it up, or set it up for both
 
-if main repo gitignore exists
+
+<!-- if main repo gitignore exists
   if !main repo gitignore contains dir /// Should be automatic or manual? 
-    node add gitignore to main repo gitignore
+    node add gitignore to main repo gitignore 
+    ^^ this should be done manually -->
 
 if !git in dir exists
   git init
 
-if !remote <remoteName>
-  git remote add remoteName remoteRepo
+<!-- if !remote <remoteName>
+  git remote add remoteName remoteRepo -->
 
 if !branch exists
-  create orphan branch
-
-set branch head to the cwd without checking out files
-  git symbolic-ref HEAD refs/heads/<branchName>
+  create orphan branch // get git command
 
 if commit
-  git add .
-  git commit "<commitMessage>"
+  set branch head to the cwd without checking out files
+    git symbolic-ref HEAD refs/heads/<branch>
+  if git working tree clean, grunt log "tree clean no new commit"
+    git add .
+    git commit "<commitMessage>"
 
 if push
-  git push <remoteName> <branchName>
+  git push <remote> HEAD:<branch>
+  grunt log output, in case push fail or no update
 
 ## packages needed
 
 git or just use spawn?
+sync with shell.js?
 
 ## Similar projects with limitations
 
