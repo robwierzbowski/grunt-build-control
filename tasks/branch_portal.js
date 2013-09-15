@@ -33,47 +33,53 @@ module.exports = function(grunt) {
     // Get project information
     function projectInfo (next) {
       // Super minimal flow control. Probably a better way to do this.
-      var count = 3;
+      var count = 4;
 
-      project.name = require('package.json').name;
+      fs.readFile('package.json', 'utf8', function (err, data) {
+        if (err) {
+          project.name = undefined;
+        }
+
+        project.name = JSON.parse(data).name; //// or false?
+        count -= 1;
+        if (count === 0) {
+          next();
+        }
+      });
 
       exec('git symbolic-ref --quiet HEAD', function (err, stdout) {
         if (err) {
-          project.branch = 'false';
+          project.branch = undefined;
         }
-        else {
-          project.branch = stdout.split('/').pop();
-          count -= 1;
-          if (count === 0) {
-            next();
-          }
+
+        project.branch = stdout.split('/').pop().replace(/\n/g, '');
+        count -= 1;
+        if (count === 0) {
+          next();
         }
       });
 
       exec('git rev-parse --short HEAD', function (err, stdout) {
         if (err) {
-          project.commit = 'false';
+          project.commit = undefined;
         }
-        else {
-          project.commit = stdout;
-          count -= 1;
-          if (count === 0) {
-            next();
-          }
+
+        project.commit = stdout.replace(/\n/g, '');
+        count -= 1;
+        if (count === 0) {
+          next();
         }
       });
 
-      exec('it show -s --format=%B HEAD', function (err, stdout) {
+      exec('git show -s --format=%B HEAD', function (err, stdout) {
         if (err) {
-          project.commitMsg = 'false';
+          project.commitMsg = undefined;
         }
-        else {
-          //// Probably has some newlines in it, check how it looks
-          project.commitMsg = stdout;
-          count -= 1;
-          if (count === 0) {
-            next();
-          }
+
+        project.commitMsg = stdout;
+        count -= 1;
+        if (count === 0) {
+          next();
         }
       });
     }
