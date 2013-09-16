@@ -21,7 +21,10 @@ module.exports = function(grunt) {
       tag: false,
       push: false
     });
-    var project = {};
+    var sourceInfo = {};
+    var commitMsg = 'Built from %sourceName%, commit %sourceCommit% on branch %sourceBranch%' +
+      '\n\n%sourceName% commit message:\n' +
+      '%sourceCommitMsg%';
 
     // Fail if required options are missing
     ['branch', 'dir', 'remote'].forEach( function (element) {
@@ -32,16 +35,16 @@ module.exports = function(grunt) {
     });
 
     // Get project information
-    function projectInfo (next) {
+    function buildSourceInfo (next) {
       // Super minimal flow control. Probably a better way to do this.
       var count = 4;
 
       fs.readFile('package.json', 'utf8', function (err, data) {
         if (err) {
-          project.name = undefined;
+          sourceInfo.name = '(unavailable)';
         }
 
-        project.name = JSON.parse(data).name; //// or false?
+        sourceInfo.name = JSON.parse(data).name;
         count -= 1;
         if (count === 0) {
           next();
@@ -50,10 +53,10 @@ module.exports = function(grunt) {
 
       exec('git symbolic-ref --quiet HEAD', function (err, stdout) {
         if (err) {
-          project.branch = undefined;
+          sourceInfo.branch = '(unavailable)';
         }
 
-        project.branch = stdout.split('/').pop().replace(/\n/g, '');
+        sourceInfo.branch = stdout.split('/').pop().replace(/\n/g, '');
         count -= 1;
         if (count === 0) {
           next();
@@ -62,10 +65,10 @@ module.exports = function(grunt) {
 
       exec('git rev-parse --short HEAD', function (err, stdout) {
         if (err) {
-          project.commit = undefined;
+          sourceInfo.commit = '(unavailable)';
         }
 
-        project.commit = stdout.replace(/\n/g, '');
+        sourceInfo.commit = stdout.replace(/\n/g, '');
         count -= 1;
         if (count === 0) {
           next();
@@ -74,15 +77,28 @@ module.exports = function(grunt) {
 
       exec('git show -s --format=%B HEAD', function (err, stdout) {
         if (err) {
-          project.commitMsg = undefined;
+          sourceInfo.commitMsg = '(unavailable)';
         }
 
-        project.commitMsg = stdout;
+        sourceInfo.commitMsg = stdout;
         count -= 1;
         if (count === 0) {
           next();
         }
       });
+    }
+
+    function buildCommitMsg (next) {
+      if (typeof options.commit === 'string') {
+        commitMsg = options.commit;
+      }
+      // Replace tokens with sourceInfo and sanitize so we can use it as a
+      // shell command
+      commitMsg = commitMsg.replace(/%sourceName%/g, sourceInfo.name)
+                  .replace(/%sourceCommit%/g, sourceInfo.commit)
+                  .replace(/%sourceBranch%/g, sourceInfo.branch)
+                  .replace(/%sourceCommitMsg%/g, sourceInfo.commitMsg);
+      next();
     }
 
     // Create a git repo if one doesn't exist
@@ -132,35 +148,53 @@ module.exports = function(grunt) {
       });
     }
 
-    function commit (next) {
-      // Make the current directory the branch HEAD without checking out any
-      // files
-      exec('git symbolic-ref HEAD refs/heads/' + options.branch, function (err, stdout) {
+    // Make the current directory the branch HEAD without checking out files
+    function safeCheckout (next) {
+      exec('git symbolic-ref HEAD refs/heads/' + options.branch, {cwd: options.dir}, function (err, stdout) {
         if (err) {
           grunt.fail.warn(err);
           done(false);
         }
         else {
-          // Skip commit if there are no changes to the working tree
-          // http://stackoverflow.com/a/2659808/530653
-          // exec('git status --porcelain', function (err, stdout) {
-          // exec('git diff-index --quiet HEAD', function (err, stdout) {
-          exec('git ls-files --exclude-standard --others', function (err, stdout) { //// might need and && in there
-            if (err) {
-              grunt.fail.warn(err);
-              done(false);
-            }
-            else if (stdout === '0') {
-              // No changes, skip commit
-              grunt.log.write('No changes, skipping commit.');
-              next();
-            }
-            else if (stdout === '1') {
-              //// continue and commit
-              //// create commit msg (true or string)
-            }
-          });
+          next();
         }
+      });
+    }
+
+    // Stage and commit to a branch
+    function commit (next) {
+      // Unstage any changes, just in case
+      exec('git reset', {cwd: options.dir}, function (err, stdout) {
+        if (err) {
+          grunt.fail.warn(err);
+          done(false);
+        }
+        // Check for changes. Using a porcelain command, but it works.
+        // See http://stackoverflow.com/a/2659808/530653
+        exec('git status --porcelain', {cwd: options.dir}, function (err, stdout) {
+          if (err) {
+            grunt.fail.warn(err);
+            done(false);
+          }
+          else if (stdout === '') {
+            // No changes, skip commit
+            grunt.log.write('No changes, skipping commit.'); //// reword
+            next();
+          }
+          else if (stdout) {
+            // Stage that shizz and commit
+            exec('git add . && git commit -m "' + commitMsg + '"', {cwd: options.dir}, function (err, stdout) {
+              if (err) {
+                grunt.fail.warn(err);
+                done(false);
+              }
+              else {
+                grunt.log.write('Committed: ' + commitMsg);
+                next();
+              }
+            });
+          }
+        });
       });
     }
 
