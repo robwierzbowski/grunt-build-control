@@ -8,7 +8,7 @@
 
 'use strict';
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   var fs = require('fs');
   var path = require('path');
   var exec = require('child_process').exec;
@@ -18,38 +18,38 @@ module.exports = function(grunt) {
     var done = this.async();
     var options = this.options({
       commit: false,
-      tag: false,
-      push: false
+      push: false,
+      commitMsg: 'Built from %sourceName%, commit %sourceCommit% on branch %sourceBranch%',
+      force: false
     });
     var sourceInfo = {};
-    var commitMsg = 'Built from %sourceName%, commit %sourceCommit% on branch %sourceBranch%' +
-      '\n\n%sourceName% commit message:\n' +
-      '%sourceCommitMsg%';
 
-    // Fail if required options are missing
-    ['branch', 'dir', 'remote'].forEach( function (element) {
-      if (!options.hasOwnProperty(element)) {
-        grunt.fail.warn('The "' + element + '" option is required.');
-        done(false);
-      }
-    });
-
-    // Get project information
-    function buildSourceInfo (next) {
-      // Super minimal flow control. Probably a better way to do this.
-      var count = 4;
-
-      fs.readFile('package.json', 'utf8', function (err, data) {
-        if (err) {
-          sourceInfo.name = '(unavailable)';
+    // Check that requirements are met
+    function checkRequirements (next) {
+      // Check that required options are set. Sync function
+      ['branch', 'dir'].forEach( function (element) {
+        if (!options.hasOwnProperty(element)) {
+          grunt.fail.warn('The "' + element + '" option is required.');
+          done(false);
         }
+      });
 
-        sourceInfo.name = JSON.parse(data).name;
-        count -= 1;
-        if (count === 0) {
+      // Check that the target directory exists
+      fs.stat(options.dir, function (err, stats) {
+        if (err) {
+          grunt.fail.warn('The target directory "' + options.dir + '" must exist.');
+          done(false);
+        }
+        else {
           next();
         }
       });
+    }
+
+    // Get source project information
+    function buildSourceInfo (next) {
+      // Super minimal flow control. Probably a better way to do this.
+      var count = 2;
 
       exec('git symbolic-ref --quiet HEAD', function (err, stdout) {
         if (err) {
@@ -74,42 +74,10 @@ module.exports = function(grunt) {
           next();
         }
       });
-
-      exec('git show -s --format=%B HEAD', function (err, stdout) {
-        if (err) {
-          sourceInfo.commitMsg = '(unavailable)';
-        }
-
-        sourceInfo.commitMsg = stdout;
-        count -= 1;
-        if (count === 0) {
-          next();
-        }
-      });
     }
 
-    function buildCommitMsg (next) {
-      if (typeof options.commit === 'string') {
-        commitMsg = options.commit;
-      }
-      // Replace tokens with sourceInfo and sanitize so we can use it as a
-      // shell command
-      commitMsg = commitMsg.replace(/%sourceName%/g, sourceInfo.name)
-                  .replace(/%sourceCommit%/g, sourceInfo.commit)
-                  .replace(/%sourceBranch%/g, sourceInfo.branch)
-                  .replace(/%sourceCommitMsg%/g, sourceInfo.commitMsg);
-      next();
-    }
-
-    // Create a git repo if one doesn't exist
-    function gitInit (next) {
-      fs.stat(options.dir, function (err, stats) {
-        if (err) {
-          grunt.fail.warn('The target directory "' + options.dir + '" must exist.');
-          done(false);
-        }
-      });
-
+    // Initialize git repo if one doesn't exist
+    function initGit (next) {
       fs.stat(path.join(options.dir, '.git'), function (err, stats) {
         if (err) {
           exec('git init', {cwd: options.dir}, function (err, stdout) {
@@ -127,10 +95,11 @@ module.exports = function(grunt) {
       });
     }
 
-    // Create the branch if it doesn't exist
-    function branchInit (next) {
+    // Create the portal branch if it doesn't exist
+    function initBranch (next) {
       exec('git show-ref --verify --quiet refs/heads/' + options.branch, {cwd: options.dir}, function (err, stdout) {
         if (err) {
+          // If the branch doesn't exist locally create an orphan branch
           exec('git checkout --orphan ' + options.branch, {cwd: options.dir}, function (err, stdout) {
             if (err) {
               grunt.fail.warn(err);
@@ -148,7 +117,7 @@ module.exports = function(grunt) {
       });
     }
 
-    // Make the current directory the branch HEAD without checking out files
+    // Make the current working tree the branch HEAD without checking out files
     function safeCheckout (next) {
       exec('git symbolic-ref HEAD refs/heads/' + options.branch, {cwd: options.dir}, function (err, stdout) {
         if (err) {
@@ -162,15 +131,16 @@ module.exports = function(grunt) {
     }
 
     // Stage and commit to a branch
-    function commit (next) {
+    function gitCommit (next) {
+      var commitMsg;
+
       // Unstage any changes, just in case
       exec('git reset', {cwd: options.dir}, function (err, stdout) {
         if (err) {
           grunt.fail.warn(err);
           done(false);
         }
-        // Check for changes. Using a porcelain command, but it works.
-        // See http://stackoverflow.com/a/2659808/530653
+        // Make sure there are differneces to commit
         exec('git status --porcelain', {cwd: options.dir}, function (err, stdout) {
           if (err) {
             grunt.fail.warn(err);
@@ -178,18 +148,23 @@ module.exports = function(grunt) {
           }
           else if (stdout === '') {
             // No changes, skip commit
-            grunt.log.write('No changes, skipping commit.'); //// reword
+            grunt.log.write('There have been no changes, skipping commit.'); //// reword
             next();
           }
           else if (stdout) {
-            // Stage that shizz and commit
-            exec('git add . && git commit -m "' + commitMsg + '"', {cwd: options.dir}, function (err, stdout) {
+            // Parse tokens in commit message
+            commitMsg = options.commitMsg.replace(/%sourceCommit%/g, sourceInfo.commit)
+                                         .replace(/%sourceBranch%/g, sourceInfo.branch);
+
+            // Stage and commit
+            exec('git add -A . && git commit -m "' + commitMsg + '"', {cwd: options.dir}, function (err, stdout) {
               if (err) {
                 grunt.fail.warn(err);
                 done(false);
               }
               else {
-                grunt.log.write('Committed: ' + commitMsg);
+                grunt.log.write('Commiting changes to branch "' + options.branch + '".');
+                grunt.log.write(stdout);
                 next();
               }
             });
@@ -198,40 +173,48 @@ module.exports = function(grunt) {
       });
     }
 
-    //// Not started Yet
-    //// have to check if working dir si clean too to prevent tag stacks? that's not going to work, tag after commit... check if there's an equal tag already. Don't double up tags
-    //// Limitation : will not double up tags on the latest commit
-    function tag (next) {
-      exec('git xxx', function (err, stdout) {
+    // Push portal branch to the remote
+    function gitPush (next) {
+      var args = '';
+
+      if (options.force) {
+        args += '-f ';
+      }
+
+      exec('git push ' + args + options.remote + ' HEAD:' + options.branch, {cwd: options.dir}, function (err, stdout, stderr) {
         if (err) {
           grunt.fail.warn(err);
           done(false);
         }
         else {
-          grunt.log.write(stdout);
+          grunt.log.write('Pushing ' + options.branch + ' to ' + options.remote);
+          grunt.log.write(stderr);
           next();
         }
       });
     }
 
-    //// Not started Yet
-    function push (next) {
-      exec('git xxx', function (err, stdout) {
-        if (err) {
-          grunt.fail.warn(err);
-          done(false);
-        }
-        else {
-          grunt.log.write(stdout);
-          next();
-        }
+    // Run task
+    checkRequirements( function () {
+      initGit( function () {
+        initBranch( function () {
+          safeCheckout( function () {
+            if (options.push) {
+              gitCommit( function () {
+                gitPush( function () {
+                  done(true);
+                });
+              });
+            }
+            else if (options.commit) {
+              gitCommit( function () {
+                done(true);
+              });
+            }
+          });
+        });
       });
-    }
+    });
 
-    // Write the destination file.
-    // grunt.file.write(f.dest, src);
-
-    // Print a success message.
-    // grunt.log.writeln('File "' + f.dest + '" created.');
   });
 };
