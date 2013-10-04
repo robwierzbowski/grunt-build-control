@@ -86,35 +86,53 @@ module.exports = function (grunt) {
     // Create branch if it doesn't exist
     function initBranch () {
 
-      // If branch exists, return
+      // TODO: simplify this a bit
+      // if branch does not exist
+      //   if remote exists
+      //     fetch remote
+      //   else
+      //     create branch
+      //     create empty first commit
+      // else
+      //   return
+
+      // If branch exists
       if(shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch).code === 0) {
         return;
       }
+      // If branch doesn't exist
+      else {
 
-      // Create branch if it doesn't exist
-      if(shelljs.exec('git checkout --orphan ' + options.branch).code !== 0) {
-        throw("Could not create branch."); // TODO: show stderrs for easier debugging
-      }
+        // Create branch if it doesn't exist
+        if(shelljs.exec('git checkout --orphan ' + options.branch).code !== 0) {
+          throw("Could not create branch."); // TODO: show stderrs for easier debugging
+        }
 
-      // Fetch remote branch if it exists
-      grunt.log.writeln('Checking to see if the branch exists remotely...');
+        // Fetch remote branch if it exists
+        grunt.log.writeln('Checking to see if the branch exists remotely...');
 
-      if(shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch).code === 0) {
+        // Check if remote branch exists
+        if(shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch).code === 0) {
 
-        // TODO: fetch remote branch
-        grunt.log.writeln('Remote branch exists.');
-        return;
-      }
+          // TODO: fetch remote branch
+          // grunt.log.writeln('Remote branch exists.');
+          return;
+        }
 
-      // Initialize branch so we can move the HEAD ref around
-      // TODO: get this workin
-      grunt.log.writeln('Remote branch does not exist. Adding an initial commit.');
-      if(shelljs.exec('git commit --allow-empty -m "Initial Commit."').code !== 0) {
-        throw('Could not create an initial commit.'); // TODO: show stderrs for easier debugging
-      }
+        // Initialize branch so we can move the HEAD ref around
+        // TODO: get this workin
 
-      if(shelljs.exec('git push --set-upstream ' + options.remote + ' HEAD:' + options.branch).code !== 0) {
-        throw('Could not push initial branch.'); // TODO: show stderrs for easier debugging
+        //// Creating local branch with initial commit
+        grunt.log.writeln('Remote branch does not exist. Adding an initial commit.');
+
+        if(shelljs.exec('git commit --allow-empty -m "Initial Commit."').code !== 0) {
+          throw('Could not create an initial commit.'); // TODO: show stderrs for easier debugging
+        }
+
+        // TODO: move push to push task, or do we need this?
+        // if(shelljs.exec('git push --set-upstream ' + options.remote + ' HEAD:' + options.branch).code !== 0) {
+        //   throw('Could not push initial branch.'); // TODO: show stderrs for easier debugging
+        // }
       }
     }
 
@@ -180,14 +198,10 @@ module.exports = function (grunt) {
       }
 
       if(shelljs.exec('git push ' + args + options.remote + ' HEAD:' + options.branch).code !== 0) {
-        throw('Unable to push changes to remote.');
+        throw('Unable to push changes to remote.'); // TODO: show stderr for better debugging
       }
 
-      // TODO: Give good error messages:
-      // - if push doesn't work because of network ?
-      // - if push doesn't work because of repo - fix yo shit
-
-      grunt.log.writeln('Pushed ' + options.branch + ' to ' + options.remote);
+      grunt.log.writeln('Pushed ' + options.branch + ' to ' + options.remote); // TODO: show stdout for better reporting
     }
 
     // Run task
