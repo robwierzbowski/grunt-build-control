@@ -2,102 +2,142 @@
 
 > Create and manage 'portal' branches that contain only subdirectories of your main branch. Useful for publishing built code to Github Pages.
 
+## Getting started
 
-branch_portal: {
-  github: {
-    options: {
-      branchName: 'the branch to make',
-      dir: 'the directory to work in'
-      remote: ''
-      ///
-      commit: 'false,
-        true: built from <packageName> <appbranchname>:<appcommit>
-          // <packageName> commit message: <appcommitmsg>
-          // work from gruntfile dir, then cwd to 'dir'
-        OR an interpolated string.',
-      tag: 'false,
-        true: +0.1.0
-        `git describe --abbrev=0 --tags`: to get last tag
-        +1.1.1 any number, split, add, array.join
-        or interpolated string'
-        // warning last tag was not a semver
-      push: 'false,
-        true: git push <remote> HEAD:<branch>
-        or force: "" --force
-    }
-  },
-}
+This plugin requires [Grunt](http://gruntjs.com/) `~0.4.0` and [Git](http://git-scm.com/).
 
+If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide which explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process you may install this plugin with the command:
 
-// switch style to "ran command: git blah blah"?
+```shell
+npm install grunt-branch-portal --save-dev
+```
 
-// one time setup
+After the plugin has been installed, load it in your Gruntfile with:
+
+```js
+grunt.loadNpmTasks('grunt-branch-portal');
+```
+
+### Setting up .gitignore
+
+<!-- // one time setup
 Must manually add dist dir to app gitignore.
 If desired, must manually create new gitignore in app, to be copied to dist.
+ -->
 
-- This is not a general node git tool. Use grunt-git-xxxwhatever for that
+## Branch_portal task
+
+_Run this task with the `grunt branch_portal` command._
+
+This task helps you version and deploy your project's built code alongside your project's source code. 
+
+The grunt task can commit, generates automated commit messages, and push the branches containing built code to your source code repo or to a remote repositiory for deployment.
+
+<!-- - This is not a general node git tool. Use grunt-git-xxxwhatever for that
 - Preserves commit history in non-local branch
 - Works with clean and build task, or as part of build task. 
 - can be the same dir for multiple portal branches
 - works with existing branches, won't overwrite previous cm history 
+ -->
 
-What is canonical repo? local or remote? Two ways to set it up, or set it up for both
+### Options
+
+#### dir
+
+Type: `String`
+Default: *No default, required*
+
+The directory that your code is built to.
+
+#### branch
+
+Type: `String`
+Default: *No default, required*
+
+The branch to commit to.
+
+#### remote
+
+Type: `String`
+Default: *No default, required*
+
+The remote to push your branch to. This can be any repository, including your source code repository.
+
+#### commit
+
+Type: `Boolean`
+Default: `false`
+
+Commit built code to the specified `branch`.
+
+<!-- #### tag -->
+
+#### push
+
+Type: `Boolean`
+Default: `false`
+
+Push the `branch` to the specified `remote`.
+
+<!-- #### force
+
+Type: `Boolean`
+Default: `false`
+
+Force push to your remote repo. Not recommended but here if you need it. -->
+
+#### commitMsg
+
+TyType: `String`
+Default: `Built from %sourceName%, commit %sourceCommit% on branch %sourceBranch%`
+
+The commit message to use when `commit` is true. It must be a safe commit message for the command line.
+
+There are three tokens available:
+
+- `%sourceName%`: The source code repository's name from package.json 
+- `%sourceBranch%`: The source code repository's current branch
+- `%sourceCommit%`: The source code repository's most recent commit
+
+### Usage
 
 
-<!-- if main repo gitignore exists
-  if !main repo gitignore contains dir /// Should be automatic or manual? 
-    node add gitignore to main repo gitignore 
-    ^^ this should be done manually -->
 
-if !git in dir exists
-  git init
+#### Example config 
 
-<!-- if !remote <remoteName>
-  git remote add remoteName remoteRepo -->
+```js
+// Project configuration.
+grunt.initConfig({
+  branch_portal: {
+    options: {
+      dir: 'dist',
+      remote: 'git@github.com:robwierzbowski/grunt-portal-branch.git',
+      message: 'Built from %sourceName%, commit %sourceCommit% on branch %sourceBranch%'
+    },
+    gh_pages: {
+      options: {
+        branch: 'gh-pages',
+        commit: true,
+        push: true
+      }
+    }
+  },
+  heroku: {
+    options: {
+      remote: 'git@heroku.com:my-heroku-project-1988.git',
+      branch: 'master',
+      commit: true,
+      push: true
+    }
+  }
+});
+```
 
-if !branch exists
-  create orphan branch // get git command
+#### Example usage
 
-if commit
-  set branch head to the cwd without checking out files
-    git symbolic-ref HEAD refs/heads/<branch>
-  if git working tree clean, grunt log "tree clean no new commit"
-    git add .
-    git commit "<commitMessage>"
-
-if push
-  git push <remote> HEAD:<branch>
-  grunt log output, in case push fail or no update
-
-## packages needed
-
-git or just use spawn?
-sync with shell.js?
-
-check grunt spawn http://gruntjs.com/api/grunt.util instead of exec.
-https://github.com/gruntjs/grunt-contrib-clean/blob/master/tasks/clean.js#L54
-
-better async error pattern
-http://stackoverflow.com/questions/13957303/nodejs-grunt-child-process-callback-function-example
-
-note cm uses double quotes, they must escape their own cm messages
-switch to regexing/ replacing projectInfo
-
-??? Switch to sync?
-??? Better control flow?
-
-??? Is it bad to use callbacks but manip vars in root scope?
-remote branch must be created by this package, or you have to pull first, then clear the working directory
-
-??? Maybe try streams for network actions, pushing and pulling
-
-Built with Generator Jekyllrb, branch: master, commit: sakj12
-Built from RobSite, commit ^·&%F on branch GitPage
-
-
-## Similar projects with limitations
+<!-- ## Similar projects with limitations
 
 https://npmjs.org/package/grunt-github-pages
 https://npmjs.org/package/grunt-git-dist
 https://npmjs.org/package/grunt-git-selective-deploy
-
+ -->
