@@ -1,6 +1,6 @@
 /*
- * grunt-branch-portal
- * https://github.com/robwierzbowski/grunt-branch-portal
+ * grunt-version-build
+ * https://github.com/robwierzbowski/grunt-version-build
  *
  * Copyright (c) 2013 Rob Wierzbowski
  * Licensed under the MIT license.
@@ -14,7 +14,7 @@ module.exports = function (grunt) {
   require('shelljs/global');
 
 
-  grunt.registerMultiTask('branch_portal', 'Work with branches that version a single directory.', function() {
+  grunt.registerMultiTask('version_build', 'Work with branches that version a single directory.', function() {
 
     var done = this.async();
     var options = this.options({

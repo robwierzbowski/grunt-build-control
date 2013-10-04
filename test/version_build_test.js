@@ -22,7 +22,7 @@ var grunt = require('grunt');
     test.ifError(value)
 */
 
-exports.branch_portal = {
+exports.version_build = {
   setUp: function(done) {
     // setup here if necessary
     done();

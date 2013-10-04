@@ -1,6 +1,6 @@
 /*
- * grunt-branch-portal
- * https://github.com/robwierzbowski/grunt-branch-portal
+ * grunt-version-build
+ * https://github.com/robwierzbowski/grunt-version-build
  *
  * Copyright (c) 2013 Rob Wierzbowski
  * Licensed under the MIT license.
@@ -29,7 +29,7 @@ module.exports = function(grunt) {
 
     // Configuration to be run (and then tested).
     //// Add configuration for tests
-    branch_portal: {
+    version_build: {
       options: {
         dir: 'aDir',
         branch: 'aBranch',
@@ -69,7 +69,7 @@ module.exports = function(grunt) {
   // plugin's task(s), then test the result.
   grunt.registerTask('test', [
     'clean',
-    'branch_portal',
+    'version_build',
     'nodeunit'
   ]);
 

@@ -1,4 +1,4 @@
-# grunt-branch-portal
+# grunt-version-build
 
 > Create and manage 'portal' branches that contain only subdirectories of your main branch. Useful for publishing built code to Github Pages.
 
@@ -9,13 +9,13 @@ This plugin requires [Grunt](http://gruntjs.com/) `~0.4.0` and [Git](http://git-
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide which explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process you may install this plugin with the command:
 
 ```shell
-npm install grunt-branch-portal --save-dev
+npm install grunt-version-build --save-dev
 ```
 
 After the plugin has been installed, load it in your Gruntfile with:
 
 ```js
-grunt.loadNpmTasks('grunt-branch-portal');
+grunt.loadNpmTasks('grunt-version-build');
 ```
 
 ### Setting up .gitignore
@@ -25,9 +25,9 @@ Must manually add dist dir to app gitignore.
 If desired, must manually create new gitignore in app, to be copied to dist.
  -->
 
-## Branch_portal task
+## version_build task
 
-_Run this task with the `grunt branch_portal` command._
+_Run this task with the `grunt version_build` command._
 
 This task helps you version and deploy your project's built code alongside your project's source code. 
 
@@ -108,7 +108,7 @@ There are three tokens available:
 ```js
 // Project configuration.
 grunt.initConfig({
-  branch_portal: {
+  version_build: {
     options: {
       dir: 'dist',
       remote: 'git@github.com:robwierzbowski/grunt-portal-branch.git',
