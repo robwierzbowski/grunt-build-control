@@ -26,7 +26,8 @@
 module.exports = function (grunt) {
   var fs = require('fs');
   var path = require('path');
-  var exec = require('child_process').exec;
+  require('shelljs/global');
+
 
   grunt.registerMultiTask('branch_portal', 'Work with branches that version a single directory.', function() {
 
@@ -40,119 +41,70 @@ module.exports = function (grunt) {
     var sourceInfo = {};
 
     // Check that requirements are met
-    function checkRequirements (next) {
-      // Check that required options are set. Sync function
+    function checkRequirements () {
+      // Check that required options are set.
       ['branch', 'dir'].forEach( function (element) {
         if (!options.hasOwnProperty(element)) {
           grunt.fail.warn('The "' + element + '" option is required.');
-          done(false);
+          return false;
         }
       });
 
-      // Check that the target directory exists
-      fs.stat(options.dir, function (err, stats) {
+      // Check that the dest directory exists
+      if(!test('-d', options.dir)) {
+        grunt.log.writeln('The target directory "' + options.dir + '" doesn\'t exist. Creating it.');
 
-        if (err) {
-          grunt.log.writeln('The target directory "' + options.dir + '" doesn\'t exist. Creating it.');
-
-          // Create the target directory if it doesn't exist.
-          fs.mkdir(options.dir, function (err, stats) {
-            if (err) {
-              grunt.fail.warn('Unable to create the target directory "' + options.dir + '".');
-              done(false);
-              return;
-            }
-
-            next();
-          });
+        if(mkdir(options.dir)) {
+          grunt.fail.warn('Unable to create the target directory "' + options.dir + '".');
+          return false;
         }
-        else {
-          next();
-        }
-      });
-    }
+      }
 
-    // Get source project information for %tokens%
-    function buildSourceInfo (next) {
-      // Super minimal flow control. Probably a better way to do this.
-      var count = 2;
+      cd(options.dir);
 
-      exec('git symbolic-ref --quiet HEAD', function (err, stdout) {
-        if (err) {
-          sourceInfo.branch = '(unavailable)';
-        }
-
-        sourceInfo.branch = stdout.split('/').pop().replace(/\n/g, '');
-        count -= 1;
-        if (count === 0) {
-          next();
-        }
-      });
-
-      exec('git rev-parse --short HEAD', function (err, stdout) {
-        if (err) {
-          sourceInfo.commit = '(unavailable)';
-        }
-
-        sourceInfo.commit = stdout.replace(/\n/g, '');
-        count -= 1;
-        if (count === 0) {
-          next();
-        }
-      });
+      return true;
     }
 
     // Initialize git repo if one doesn't exist
-    // TODO: check that this errs and creates git repo correctly
-    function initGit (next) {
-      fs.stat(path.join(options.dir, '.git'), function (err, stats) {
-        if (err) {
-          exec('git init', {cwd: options.dir}, function (err, stdout) {
-            if (err) {
-              grunt.fail.warn(err);
-              done(false);
-            }
-            grunt.log.writeln('Creating empty git repository in ' + options.dir);
-            next();
-          });
+    function initGit () {
+      if(!test('-d', path.join(options.dir, '.git'))) {
+        grunt.log.writeln("Creating local git repo.");
+
+        if(exec('git init').code !== 0) {
+          grunt.fail.warn("Could not initialize the local git repo.");
+          return false;
         }
-        else {
-          next();
-        }
-      });
+      }
+
+      return true;
     }
 
     // Create the portal branch if it doesn't exist
-    function initBranch (next) {
-      exec('git show-ref --verify --quiet refs/heads/' + options.branch, {cwd: options.dir}, function (err, stdout) {
-        if (err) {
-          // If the branch doesn't exist locally create an orphan branch
-          exec('git checkout --orphan ' + options.branch, {cwd: options.dir}, function (err, stdout) {
-            if (err) {
-              grunt.fail.warn(err);
-              done(false);
-              return;
-            }
+    function initBranch () {
+      if(exec('git show-ref --verify --quiet refs/heads/' + options.branch).code === 0) {
+        return true;
+      }
 
-            grunt.log.writeln('Created new "' + options.branch + '" branch');
+      if(exec('git checkout --orphan ' + options.branch).code !== 0) {
+        grunt.fail.warn("Could not create branch.");
+        return false;
+      }
 
-            // TODO: only create the empty commit if the remote branch doesn't exist.
-            exec('git commit --allow-empty -m "Initial Commit."', {cwd: options.dir}, function (err, stdout) {
-              if (err) {
-                grunt.fail.warn(err);
-                done(false);
-                return;
-              }
+      grunt.log.writeln('Checking to see if the branch exists remotely...');
 
-              next();
-            });
-          });
-        }
-        else {
-          // Branch exists, continue
-          next();
-        }
-      });
+      if(exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch).code === 0) {
+        grunt.log.writeln('Remote branch exists.');
+        return true;
+      }
+
+      grunt.log.writeln('Remote branch does not exist. Adding an initial commit.');
+
+      if(exec('git commit --allow-empty -m "Initial Commit."').code !== 0) {
+        grunt.log.writeln('Could not create an initial commit.');
+        return false;
+      }
+
+      return true;
     }
 
     // Make the current working tree the branch HEAD without checking out files
@@ -240,10 +192,25 @@ module.exports = function (grunt) {
       });
     }
 
+    if(!checkRequirements()) {
+      done(false);
+      return;
+    }
+
+    if(!initGit()) {
+      done(false);
+      return;
+    }
+
+    if(!initBranch()) {
+      done(false);
+      return;
+    }
+
+    done(true);
+    return;
+
     // Run task
-    checkRequirements( function () {
-      initGit( function () {
-        initBranch( function () {
           safeCheckout( function () {
             if (options.push) {
               gitCommit( function () {
@@ -259,7 +226,4 @@ module.exports = function (grunt) {
             }
           });
         });
-      });
-    });
-  });
 };

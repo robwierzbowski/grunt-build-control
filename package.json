@@ -25,6 +25,7 @@
     "test": "grunt test"
   },
   "dependencies": {
+    "shelljs": "~0.2.6"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "~0.1.1",
