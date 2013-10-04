@@ -96,9 +96,13 @@ module.exports = function (grunt) {
       }
 
       grunt.log.writeln('Remote branch does not exist. Adding an initial commit.');
-
       if(exec('git commit --allow-empty -m "Initial Commit."').code !== 0) {
         grunt.log.writeln('Could not create an initial commit.');
+        return false;
+      }
+
+      if(exec('git push --set-upstream ' + options.remote + ' HEAD:' + options.branch).code !== 0) {
+        grunt.log.writeln('Could not push initial branch.');
         return false;
       }
 
@@ -107,17 +111,16 @@ module.exports = function (grunt) {
 
     // Make the current working tree the branch HEAD without checking out files
     function safeCheckout () {
-      grunt.log.writeln('Moving HEAD ref.');
+      grunt.log.writeln('Pulling latest from remote.');
 
-      if(exec('git symbolic-ref HEAD refs/heads/' + options.branch).code !== 0) {
-        grunt.log.writeln('Could not move the HEAD ref.');
+      if(exec('git pull ' + options.remote + ' ' + options.branch).code !== 0) {
+        grunt.log.writeln('Could not pull local branch.');
         return false;
       }
 
       return true;
     }
 
-    // TODO: Pull/fetch before each commit
     // Stage and commit to a branch
     function gitCommit () {
       var commitMsg;

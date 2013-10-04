@@ -33,7 +33,7 @@ module.exports = function(grunt) {
       options: {
         dir: 'aDir',
         branch: 'aBranch',
-        remote: 'git@github.com:robwierzbowski/grunt-portal-branch.git',
+        remote: 'git@github.com:seejee/grunt-portal-branch.git',
         message: 'commit message'
       },
       def: {
