@@ -21,9 +21,10 @@ module.exports = function (grunt) {
       commit: false,
       // tag: false,
       push: false,
-      commitMsg: 'Built from %sourceName%, commit %sourceCommit% on branch %sourceBranch%',
+      commitMsg: 'Built from commit %sourceCommit% on branch %sourceBranch%',
       force: false
     });
+
     var sourceInfo = {};
 
     // Check requirements
@@ -42,6 +43,27 @@ module.exports = function (grunt) {
         if(shelljs.mkdir(options.dir)) {
           throw('Unable to create the target directory "' + options.dir + '".');
         }
+      }
+    }
+
+    // Get source project information for %tokens%
+    function buildSourceInfo () {
+      var branchCommand = shelljs.exec('git symbolic-ref --quiet HEAD');
+
+      if(branchCommand.code !== 0) {
+        sourceInfo.branch = '(unavailable)';
+      }
+      else {
+        sourceInfo.branch = branchCommand.output.split('/').pop().replace(/\n/g, '');
+      }
+
+      var commitCommand = shelljs.exec('git rev-parse --short HEAD');
+
+      if (commitCommand.code !== 0) {
+        sourceInfo.commit = '(unavailable)';
+      }
+      else {
+        sourceInfo.commit = commitCommand.output.replace(/\n/g, '');
       }
     }
 
@@ -149,6 +171,7 @@ module.exports = function (grunt) {
     try {
 
       checkRequirements();
+      buildSourceInfo();
 
       // Change working directory
       shelljs.cd(options.dir);
