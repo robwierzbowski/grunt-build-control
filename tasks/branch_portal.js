@@ -112,7 +112,7 @@ module.exports = function (grunt) {
               grunt.fail.warn(err);
               done(false);
             }
-            grunt.log.write('Creating empty git repository in ' + options.dir);
+            grunt.log.writeln('Creating empty git repository in ' + options.dir);
             next();
           });
         }
@@ -134,7 +134,7 @@ module.exports = function (grunt) {
               done(false);
             }
             else {
-              grunt.log.write('Creating new "' + options.branch + '" branch');
+              grunt.log.writeln('Creating new "' + options.branch + '" branch');
               next();
             }
           });
@@ -179,7 +179,7 @@ module.exports = function (grunt) {
           }
           else if (stdout === '') {
             // No changes, skip commit
-            grunt.log.write('There have been no changes, skipping commit.'); //// reword
+            grunt.log.writeln('There have been no changes, skipping commit.'); //// reword
             next();
           }
           else if (stdout) {
@@ -194,8 +194,8 @@ module.exports = function (grunt) {
                 done(false);
               }
               else {
-                grunt.log.write('Committed changes to branch "' + options.branch + '".');
-                grunt.log.write(stdout);
+                grunt.log.writeln('Committed changes to branch "' + options.branch + '".');
+                grunt.log.writeln(stdout);
                 next();
               }
             });
@@ -219,8 +219,8 @@ module.exports = function (grunt) {
           done(false);
         }
         else {
-          grunt.log.write('Pushed ' + options.branch + ' to ' + options.remote);
-          grunt.log.write(stderr);
+          grunt.log.writeln('Pushed ' + options.branch + ' to ' + options.remote);
+          grunt.log.writeln(stderr);
 
           // TODO: Give good error messages:
           // - if push doesn't work because of network ?
