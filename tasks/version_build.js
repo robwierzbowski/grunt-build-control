@@ -47,21 +47,28 @@ module.exports = function (grunt) {
 
     // Get source project information for %tokens%
     function buildSourceInfo () {
-      var branchCommand = shelljs.exec('git symbolic-ref --quiet HEAD');
-      var commitCommand = shelljs.exec('git rev-parse --short HEAD');
+      var sourceBranch = shelljs.exec('git symbolic-ref --quiet HEAD');
+      var sourceCommit = shelljs.exec('git rev-parse --short HEAD');
 
-      if(branchCommand.code !== 0) {
+      if(sourceBranch.code === 0) {
+        sourceInfo.branch = sourceBranch.output.split('/').pop().replace(/\n/g, '');
+      }
+      else {
         sourceInfo.branch = '(unavailable)';
       }
-      else {
-        sourceInfo.branch = branchCommand.output.split('/').pop().replace(/\n/g, '');
-      }
 
-      if (commitCommand.code !== 0) {
+      if (sourceCommit.code === 0) {
+        sourceInfo.commit = sourceCommit.output.replace(/\n/g, '');
+      }
+      else {
         sourceInfo.commit = '(unavailable)';
       }
+
+      if (fs.existsSync('package.json')) {
+        sourceInfo.name = JSON.parse(fs.readFileSync('package.json', 'utf8')).name;
+      }
       else {
-        sourceInfo.commit = commitCommand.output.replace(/\n/g, '');
+        sourceInfo.name = '(unavailable)';
       }
     }
 
@@ -147,6 +154,7 @@ module.exports = function (grunt) {
 
       // Parse tokens in commit message
       commitMsg = options.commitMsg
+        .replace(/%sourceName%/g, sourceInfo.name)
         .replace(/%sourceCommit%/g, sourceInfo.commit)
         .replace(/%sourceBranch%/g, sourceInfo.branch);
 
