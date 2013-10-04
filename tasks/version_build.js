@@ -13,8 +13,7 @@ module.exports = function (grunt) {
   var path = require('path');
   var shelljs = require('shelljs');
 
-
-  grunt.registerMultiTask('version_build', 'Work with branches that version a single directory.', function() {
+  grunt.registerMultiTask('version_build', 'Version built code next to your project\'s source.', function() {
 
     var done = this.async();
     var options = this.options({
@@ -24,8 +23,8 @@ module.exports = function (grunt) {
       commitMsg: 'Built from commit %sourceCommit% on branch %sourceBranch%',
       force: false
     });
-
     var sourceInfo = {};
+    var currentDir = shelljs.pwd();
 
     // Check requirements
     function checkRequirements (next) {
@@ -38,7 +37,7 @@ module.exports = function (grunt) {
 
       // Check that the dist directory exists
       if(!shelljs.test('-d', options.dir)) {
-        grunt.log.writeln('The target directory "' + options.dir + '" doesn\'t exist. Creating it.');
+        grunt.log.writeln('Creating target directory "' + options.dir + '".');
 
         if(shelljs.mkdir(options.dir)) {
           throw('Unable to create the target directory "' + options.dir + '".');
@@ -49,6 +48,7 @@ module.exports = function (grunt) {
     // Get source project information for %tokens%
     function buildSourceInfo () {
       var branchCommand = shelljs.exec('git symbolic-ref --quiet HEAD');
+      var commitCommand = shelljs.exec('git rev-parse --short HEAD');
 
       if(branchCommand.code !== 0) {
         sourceInfo.branch = '(unavailable)';
@@ -56,8 +56,6 @@ module.exports = function (grunt) {
       else {
         sourceInfo.branch = branchCommand.output.split('/').pop().replace(/\n/g, '');
       }
-
-      var commitCommand = shelljs.exec('git rev-parse --short HEAD');
 
       if (commitCommand.code !== 0) {
         sourceInfo.commit = '(unavailable)';
@@ -73,40 +71,51 @@ module.exports = function (grunt) {
         grunt.log.writeln("Creating local git repo.");
 
         if(shelljs.exec('git init').code !== 0) {
-          throw("Could not initialize the local git repo.");
+          throw("Could not initialize the local git repo."); // TODO: show stderrs for easier debugging
         }
       }
     }
 
-    // Create the portal branch if it doesn't exist
+    // Create branch if it doesn't exist
     function initBranch () {
+
+      // If branch exists, return
       if(shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch).code === 0) {
         return;
       }
 
+      // Create branch if it doesn't exist
       if(shelljs.exec('git checkout --orphan ' + options.branch).code !== 0) {
-        throw("Could not create branch.");
+        throw("Could not create branch."); // TODO: show stderrs for easier debugging
       }
 
+      // Fetch remote branch if it exists
       grunt.log.writeln('Checking to see if the branch exists remotely...');
 
       if(shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch).code === 0) {
+
+        // TODO: fetch remote branch
         grunt.log.writeln('Remote branch exists.');
         return;
       }
 
+      // Initialize branch so we can move the HEAD ref around
+      // TODO: get this workin
       grunt.log.writeln('Remote branch does not exist. Adding an initial commit.');
       if(shelljs.exec('git commit --allow-empty -m "Initial Commit."').code !== 0) {
-        throw('Could not create an initial commit.');
+        throw('Could not create an initial commit.'); // TODO: show stderrs for easier debugging
       }
 
       if(shelljs.exec('git push --set-upstream ' + options.remote + ' HEAD:' + options.branch).code !== 0) {
-        throw('Could not push initial branch.');
+        throw('Could not push initial branch.'); // TODO: show stderrs for easier debugging
       }
     }
 
     // Make the current working tree the branch HEAD without checking out files
     function safeCheckout () {
+
+      // TODO: not sure why we're pulling in here
+      // TODO: this should be safecheckout / move head ref
       grunt.log.writeln('Pulling latest from remote.');
 
       if(shelljs.exec('git pull ' + options.remote + ' ' + options.branch).code !== 0) {
@@ -116,8 +125,9 @@ module.exports = function (grunt) {
 
     // Stage and commit to a branch
     function gitCommit () {
-    // TODO: Pull/fetch before each commit
+      // TODO: Pull/fetch before each commit
       var commitMsg;
+      var status = shelljs.exec('git status --porcelain');
 
       // Unstage any changes, just in case
       if(shelljs.exec('git reset').code !== 0) {
@@ -125,10 +135,8 @@ module.exports = function (grunt) {
       }
 
       // Make sure there are differneces to commit
-      var status = shelljs.exec('git status --porcelain');
-
       if(status.code !== 0) {
-        throw('Could not execute git status.');
+        throw('Could not execute git status.'); // TODO: show stderrs for easier debugging
       }
 
       if (status.output === '') {
@@ -144,17 +152,20 @@ module.exports = function (grunt) {
 
       // Stage and commit
       if(shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"').code !== 0) {
-        throw('Unable to commit changes locally.');
+        throw('Unable to commit changes locally.'); // TODO: show stderrs for easier debugging
       }
 
-      grunt.log.writeln('Committed changes to branch "' + options.branch + '".');
+      grunt.log.writeln('Committed changes to branch "' + options.branch + '".'); // TODO: show stdout for better reporting
     }
 
     // Push portal branch to the remote
     function gitPush () {
       var args = '';
 
-      // TODO: Implement force push
+      if (options.force) {
+        args += '-f ';
+      }
+
       if(shelljs.exec('git push ' + args + options.remote + ' HEAD:' + options.branch).code !== 0) {
         throw('Unable to push changes to remote.');
       }
@@ -166,8 +177,7 @@ module.exports = function (grunt) {
       grunt.log.writeln('Pushed ' + options.branch + ' to ' + options.remote);
     }
 
-    var currentDir = shelljs.pwd();
-
+    // Run task
     try {
 
       checkRequirements();
@@ -178,21 +188,20 @@ module.exports = function (grunt) {
 
       initGit();
       initBranch();
-      safeCheckout();
+      safeCheckout(); // TODO: this will change when safeChk is redefined
 
-      if (options.commit === false && options.push === false) {
-        done(true);
-        return;
+      if (options.commit) {
+        gitCommit();
       }
 
-      gitCommit();
+      // TODO: Impliment tag option
+      // if (options.tag) {
+      //   gitCommit();
+      // }
 
-      if (options.push === false) {
-        done(true);
-        return;
+      if (options.push) {
+        gitPush();
       }
-
-      gitPush();
 
       done(true);
     }
