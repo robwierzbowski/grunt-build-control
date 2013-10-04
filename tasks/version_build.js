@@ -164,49 +164,57 @@ module.exports = function (grunt) {
       return true;
     }
 
-    if(!checkRequirements()) {
-      done(false);
-      return;
-    }
+    var currentDir = pwd();
 
-    // Change working directory
-    shelljs.cd(options.dir);
+    try {
 
-    if(!initGit()) {
-      done(false);
-      return;
-    }
+      if(!checkRequirements()) {
+        done(false);
+        return;
+      }
 
-    if(!initBranch()) {
-      done(false);
-      return;
-    }
+      // Change working directory
+      shelljs.cd(options.dir);
 
-    if(!safeCheckout()) {
-      done(false);
-      return;
-    }
+      if(!initGit()) {
+        done(false);
+        return;
+      }
 
-    if (options.commit === false && options.push === false) {
+      if(!initBranch()) {
+        done(false);
+        return;
+      }
+
+      if(!safeCheckout()) {
+        done(false);
+        return;
+      }
+
+      if (options.commit === false && options.push === false) {
+        done(true);
+        return;
+      }
+
+      if(!gitCommit()) {
+        done(false);
+        return;
+      }
+
+      if (options.push === false) {
+        done(true);
+        return;
+      }
+
+      if(!gitPush()) {
+        done(false);
+        return;
+      }
+
       done(true);
-      return;
     }
-
-    if(!gitCommit()) {
-      done(false);
-      return;
+    finally {
+      cd(currentDir);
     }
-
-    if (options.push === false) {
-      done(true);
-      return;
-    }
-
-    if(!gitPush()) {
-      done(false);
-      return;
-    }
-
-    done(true);
   });
 };
