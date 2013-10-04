@@ -166,6 +166,11 @@ module.exports = function (grunt) {
       grunt.log.writeln('Committed changes to branch "' + options.branch + '".'); // TODO: show stdout for better reporting
     }
 
+    // TODO: Impliment tag option
+    // Pronounced "gihttag"
+    // function gitTag () {
+    // }
+
     // Push portal branch to the remote
     function gitPush () {
       var args = '';
@@ -202,7 +207,6 @@ module.exports = function (grunt) {
         gitCommit();
       }
 
-      // TODO: Impliment tag option
       // if (options.tag) {
       //   gitCommit();
       // }
