@@ -6,22 +6,6 @@
  * Licensed under the MIT license.
  */
 
-//// Output:
-// grunt branch_portal:def
-// Running "branch_portal:def" (branch_portal) task
-// Commiting changes to branch "breancho".[breancho 1dfb3b9] Built from %sourceName%, commit undefined on branch undefined
-//  4 files changed, 1 insertion(+)
-//  rename corbu.js => gharn.css (100%)
-//  create mode 100644 stopo.css
-//  create mode 100644 this01.js
-// Pushing breancho to git@github.com:robwierzbowski/grunt-portal-branch.gitTo git@github.com:robwierzbowski/grunt-portal-branch.git
-//  * [new branch]      HEAD -> breancho
-
-//// Add linebreaks
-//// fix output
-//// fix cm token replacement
-//// get push to the parent repo working
-
 'use strict';
 
 module.exports = function (grunt) {
@@ -35,29 +19,24 @@ module.exports = function (grunt) {
     var done = this.async();
     var options = this.options({
       commit: false,
+      // tag: false,
       push: false,
       commitMsg: 'Built from %sourceName%, commit %sourceCommit% on branch %sourceBranch%',
       force: false
     });
     var sourceInfo = {};
 
-    // Check that requirements are met
-<<<<<<< HEAD
-    function checkRequirements () {
-      // Check that required options are set.
-      ['branch', 'dir'].forEach( function (element) {
-=======
+    // Check requirements
     function checkRequirements (next) {
-      // Check that required options are set. Sync function
+      // Check that required options are set.
       ['branch', 'dir', 'remote'].forEach( function (element) {
->>>>>>> Require remote option
         if (!options.hasOwnProperty(element)) {
           grunt.fail.warn('The "' + element + '" option is required.');
           return false;
         }
       });
 
-      // Check that the dest directory exists
+      // Check that the dist directory exists
       if(!test('-d', options.dir)) {
         grunt.log.writeln('The target directory "' + options.dir + '" doesn\'t exist. Creating it.');
 
@@ -130,6 +109,7 @@ module.exports = function (grunt) {
 
     // Stage and commit to a branch
     function gitCommit () {
+    // TODO: Pull/fetch before each commit
       var commitMsg;
 
       // Unstage any changes, just in case
@@ -152,8 +132,9 @@ module.exports = function (grunt) {
       }
 
       // Parse tokens in commit message
-      var commitMsg = options.commitMsg.replace(/%sourceCommit%/g, sourceInfo.commit)
-                                   .replace(/%sourceBranch%/g, sourceInfo.branch);
+      commitMsg = options.commitMsg
+        .replace(/%sourceCommit%/g, sourceInfo.commit)
+        .replace(/%sourceBranch%/g, sourceInfo.branch);
 
       // Stage and commit
       if(exec('git add -A . && git commit -m "' + commitMsg + '"').code != 0) {
