@@ -31,8 +31,7 @@ module.exports = function (grunt) {
       // Check that required options are set.
       ['branch', 'dir', 'remote'].forEach( function (element) {
         if (!options.hasOwnProperty(element)) {
-          grunt.fail.warn('The "' + element + '" option is required.');
-          return false;
+          throw('The "' + element + '" option is required.');
         }
       });
 
@@ -41,12 +40,9 @@ module.exports = function (grunt) {
         grunt.log.writeln('The target directory "' + options.dir + '" doesn\'t exist. Creating it.');
 
         if(shelljs.mkdir(options.dir)) {
-          grunt.fail.warn('Unable to create the target directory "' + options.dir + '".');
-          return false;
+          throw('Unable to create the target directory "' + options.dir + '".');
         }
       }
-
-      return true;
     }
 
     // Initialize git repo if one doesn't exist
@@ -55,44 +51,36 @@ module.exports = function (grunt) {
         grunt.log.writeln("Creating local git repo.");
 
         if(shelljs.exec('git init').code !== 0) {
-          grunt.fail.warn("Could not initialize the local git repo.");
-          return false;
+          throw("Could not initialize the local git repo.");
         }
       }
-
-      return true;
     }
 
     // Create the portal branch if it doesn't exist
     function initBranch () {
       if(shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch).code === 0) {
-        return true;
+        return;
       }
 
       if(shelljs.exec('git checkout --orphan ' + options.branch).code !== 0) {
-        grunt.fail.warn("Could not create branch.");
-        return false;
+        throw("Could not create branch.");
       }
 
       grunt.log.writeln('Checking to see if the branch exists remotely...');
 
       if(shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch).code === 0) {
         grunt.log.writeln('Remote branch exists.');
-        return true;
+        return;
       }
 
       grunt.log.writeln('Remote branch does not exist. Adding an initial commit.');
       if(shelljs.exec('git commit --allow-empty -m "Initial Commit."').code !== 0) {
-        grunt.log.writeln('Could not create an initial commit.');
-        return false;
+        throw('Could not create an initial commit.');
       }
 
       if(shelljs.exec('git push --set-upstream ' + options.remote + ' HEAD:' + options.branch).code !== 0) {
-        grunt.log.writeln('Could not push initial branch.');
-        return false;
+        throw('Could not push initial branch.');
       }
-
-      return true;
     }
 
     // Make the current working tree the branch HEAD without checking out files
@@ -100,11 +88,8 @@ module.exports = function (grunt) {
       grunt.log.writeln('Pulling latest from remote.');
 
       if(shelljs.exec('git pull ' + options.remote + ' ' + options.branch).code !== 0) {
-        grunt.log.writeln('Could not pull local branch.');
-        return false;
+        throw('Could not pull local branch.');
       }
-
-      return true;
     }
 
     // Stage and commit to a branch
@@ -121,14 +106,13 @@ module.exports = function (grunt) {
       var status = shelljs.exec('git status --porcelain');
 
       if(status.code !== 0) {
-        grunt.log.writeln('Could not execute git status.');
-        return false;
+        throw('Could not execute git status.');
       }
 
       if (status.output === '') {
         // No changes, skip commit
         grunt.log.writeln('There have been no changes, skipping commit.'); //// reword
-        return true;
+        return;
       }
 
       // Parse tokens in commit message
@@ -138,12 +122,10 @@ module.exports = function (grunt) {
 
       // Stage and commit
       if(shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"').code !== 0) {
-        grunt.log.writeln('Unable to commit changes locally.');
-        return false;
+        throw('Unable to commit changes locally.');
       }
 
       grunt.log.writeln('Committed changes to branch "' + options.branch + '".');
-      return true;
     }
 
     // Push portal branch to the remote
@@ -152,8 +134,7 @@ module.exports = function (grunt) {
 
       // TODO: Implement force push
       if(shelljs.exec('git push ' + args + options.remote + ' HEAD:' + options.branch).code !== 0) {
-        grunt.log.writeln('Unable to push changes to remote.');
-        return false;
+        throw('Unable to push changes to remote.');
       }
 
       // TODO: Give good error messages:
@@ -161,60 +142,43 @@ module.exports = function (grunt) {
       // - if push doesn't work because of repo - fix yo shit
 
       grunt.log.writeln('Pushed ' + options.branch + ' to ' + options.remote);
-      return true;
     }
 
-    var currentDir = pwd();
+    var currentDir = shelljs.pwd();
 
     try {
 
-      if(!checkRequirements()) {
-        done(false);
-        return;
-      }
+      checkRequirements();
 
       // Change working directory
       shelljs.cd(options.dir);
 
-      if(!initGit()) {
-        done(false);
-        return;
-      }
-
-      if(!initBranch()) {
-        done(false);
-        return;
-      }
-
-      if(!safeCheckout()) {
-        done(false);
-        return;
-      }
+      initGit();
+      initBranch();
+      safeCheckout();
 
       if (options.commit === false && options.push === false) {
         done(true);
         return;
       }
 
-      if(!gitCommit()) {
-        done(false);
-        return;
-      }
+      gitCommit();
 
       if (options.push === false) {
         done(true);
         return;
       }
 
-      if(!gitPush()) {
-        done(false);
-        return;
-      }
+      gitPush();
 
       done(true);
     }
+    catch (e) {
+      grunt.fail.warn(e);
+      done(false);
+    }
     finally {
-      cd(currentDir);
+      shelljs.cd(currentDir);
     }
   });
 };
