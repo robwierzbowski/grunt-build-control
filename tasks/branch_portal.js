@@ -60,8 +60,6 @@ module.exports = function (grunt) {
         }
       }
 
-      cd(options.dir);
-
       return true;
     }
 
@@ -108,94 +106,79 @@ module.exports = function (grunt) {
     }
 
     // Make the current working tree the branch HEAD without checking out files
-    function safeCheckout (next) {
-      exec('git symbolic-ref HEAD refs/heads/' + options.branch, {cwd: options.dir}, function (err, stdout) {
-        if (err) {
-          grunt.fail.warn(err);
-          done(false);
-        }
-        else {
-          next();
-        }
-      });
-    }
+    function safeCheckout () {
+      grunt.log.writeln('Moving HEAD ref.');
 
+      if(exec('git symbolic-ref HEAD refs/heads/' + options.branch).code !== 0) {
+        grunt.log.writeln('Could not move the HEAD ref.');
+        return false;
+      }
+
+      return true;
+    }
 
     // TODO: Pull/fetch before each commit
     // Stage and commit to a branch
-    function gitCommit (next) {
+    function gitCommit () {
       var commitMsg;
 
       // Unstage any changes, just in case
-      exec('git reset', {cwd: options.dir}, function (err, stdout) {
-        if (err) {
-          grunt.fail.warn(err);
-          done(false);
-        }
-        // Make sure there are differneces to commit
-        exec('git status --porcelain', {cwd: options.dir}, function (err, stdout) {
-          if (err) {
-            grunt.fail.warn(err);
-            done(false);
-          }
-          else if (stdout === '') {
-            // No changes, skip commit
-            grunt.log.writeln('There have been no changes, skipping commit.'); //// reword
-            next();
-          }
-          else if (stdout) {
-            // Parse tokens in commit message
-            commitMsg = options.commitMsg.replace(/%sourceCommit%/g, sourceInfo.commit)
-                                         .replace(/%sourceBranch%/g, sourceInfo.branch);
+      if(exec('git reset').code !== 0) {
+        grunt.log.writeln('Could not unstage local changes.');
+      }
 
-            // Stage and commit
-            exec('git add -A . && git commit -m "' + commitMsg + '"', {cwd: options.dir}, function (err, stdout) {
-              if (err) {
-                grunt.fail.warn(err);
-                done(false);
-              }
-              else {
-                grunt.log.writeln('Committed changes to branch "' + options.branch + '".');
-                grunt.log.writeln(stdout);
-                next();
-              }
-            });
-          }
-        });
-      });
+      // Make sure there are differneces to commit
+      var status = exec('git status --porcelain');
+
+      if(status.code !== 0) {
+        grunt.log.writeln('Could not execute git status.');
+        return false;
+      }
+
+      if (status.output === '') {
+        // No changes, skip commit
+        grunt.log.writeln('There have been no changes, skipping commit.'); //// reword
+        return true;
+      }
+
+      // Parse tokens in commit message
+      var commitMsg = options.commitMsg.replace(/%sourceCommit%/g, sourceInfo.commit)
+                                   .replace(/%sourceBranch%/g, sourceInfo.branch);
+
+      // Stage and commit
+      if(exec('git add -A . && git commit -m "' + commitMsg + '"').code != 0) {
+        grunt.log.writeln('Unable to commit changes locally.');
+        return false;
+      }
+
+      grunt.log.writeln('Committed changes to branch "' + options.branch + '".');
+      return true;
     }
 
     // Push portal branch to the remote
-    function gitPush (next) {
+    function gitPush () {
       var args = '';
 
-      // TODO: Impliment later
-      // if (options.force) {
-      //   args += '-f ';
-      // }
+      // TODO: Implement force push
+      if(exec('git push ' + args + options.remote + ' HEAD:' + options.branch).code !== 0) {
+        grunt.log.writeln('Unable to push changes to remote.');
+        return false;
+      }
 
-      exec('git push ' + args + options.remote + ' HEAD:' + options.branch, {cwd: options.dir}, function (err, stdout, stderr) {
-        if (err) {
-          grunt.fail.warn(err);
-          done(false);
-        }
-        else {
-          grunt.log.writeln('Pushed ' + options.branch + ' to ' + options.remote);
-          grunt.log.writeln(stderr);
+      // TODO: Give good error messages:
+      // - if push doesn't work because of network ?
+      // - if push doesn't work because of repo - fix yo shit
 
-          // TODO: Give good error messages:
-          // - if push doesn't work because of network ?
-          // - if push doesn't work because of repo - fix yo shit
-
-          next();
-        }
-      });
+      grunt.log.writeln('Pushed ' + options.branch + ' to ' + options.remote);
+      return true;
     }
 
     if(!checkRequirements()) {
       done(false);
       return;
     }
+
+    cd(options.dir);
 
     if(!initGit()) {
       done(false);
@@ -207,23 +190,31 @@ module.exports = function (grunt) {
       return;
     }
 
-    done(true);
-    return;
+    if(!safeCheckout()) {
+      done(false);
+      return;
+    }
 
-    // Run task
-          safeCheckout( function () {
-            if (options.push) {
-              gitCommit( function () {
-                gitPush( function () {
-                  done(true);
-                });
-              });
-            }
-            else if (options.commit) {
-              gitCommit( function () {
-                done(true);
-              });
-            }
-          });
-        });
+    if (options.commit == false && options.push == false) {
+      done(true);
+      return;
+    }
+
+    if(!gitCommit()) {
+      done(false);
+      return;
+    }
+
+    if (options.push == false) {
+      done(true);
+      return;
+    }
+
+    if(!gitPush()) {
+      done(false);
+      return;
+    }
+
+    done(true);
+  });
 };
