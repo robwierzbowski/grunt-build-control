@@ -28,24 +28,24 @@ module.exports = function(grunt) {
     },
 
     // Configuration to be run (and then tested).
-    //// Add configuration for tests
     version_build: {
       options: {
-        dir: 'aDir',
-        branch: 'aBranch',
-        remote: 'git@github.com:seejee/grunt-portal-branch.git',
-        message: 'commit message'
+        dir: 'dist',
+        remote: '../',
+        branch: 'gh-pages',
+        message: 'Check *this* out.'
       },
       def: {
         options: {
-          branch: 'breancho',
+          branch: 'test-branch',
           commit: true,
           push: true
         }
       }//,
       // custom_options: {
       //   options: {
-      //     other: "htad"
+      //     remote: 'git@github.com:robwierzbowski/grunt-version-build.git',
+      //     other: 'test-branch-dos'
       //   }
       // },
     },
