@@ -52,11 +52,19 @@ module.exports = function (grunt) {
       // Check that the target directory exists
       fs.stat(options.dir, function (err, stats) {
 
-        // TODO: make dir if it doesn't exist
-
         if (err) {
-          grunt.fail.warn('The target directory "' + options.dir + '" must exist.');
-          done(false);
+          grunt.log.writeln('The target directory "' + options.dir + '" doesn\'t exist. Creating it.');
+
+          // Create the target directory if it doesn't exist.
+          fs.mkdir(options.dir, function (err, stats) {
+            if (err) {
+              grunt.fail.warn('Unable to create the target directory "' + options.dir + '".');
+              done(false);
+              return;
+            }
+
+            next();
+          });
         }
         else {
           next();
