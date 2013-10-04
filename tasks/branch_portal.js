@@ -123,7 +123,6 @@ module.exports = function (grunt) {
     }
 
     // Create the portal branch if it doesn't exist
-    // TODO: if branch is new needs a blank / initial commit
     function initBranch (next) {
       exec('git show-ref --verify --quiet refs/heads/' + options.branch, {cwd: options.dir}, function (err, stdout) {
         if (err) {
@@ -132,11 +131,21 @@ module.exports = function (grunt) {
             if (err) {
               grunt.fail.warn(err);
               done(false);
+              return;
             }
-            else {
-              grunt.log.writeln('Creating new "' + options.branch + '" branch');
+
+            grunt.log.writeln('Created new "' + options.branch + '" branch');
+
+            // TODO: only create the empty commit if the remote branch doesn't exist.
+            exec('git commit --allow-empty -m "Initial Commit."', {cwd: options.dir}, function (err, stdout) {
+              if (err) {
+                grunt.fail.warn(err);
+                done(false);
+                return;
+              }
+
               next();
-            }
+            });
           });
         }
         else {
