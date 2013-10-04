@@ -115,6 +115,7 @@ module.exports = function (grunt) {
     }
 
     // Create the portal branch if it doesn't exist
+    // TODO: if branch is new needs a blank / initial commit
     function initBranch (next) {
       exec('git show-ref --verify --quiet refs/heads/' + options.branch, {cwd: options.dir}, function (err, stdout) {
         if (err) {
