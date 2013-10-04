@@ -28,6 +28,9 @@ branch_portal: {
   },
 }
 
+
+// switch style to "ran command: git blah blah"?
+
 // one time setup
 Must manually add dist dir to app gitignore.
 If desired, must manually create new gitignore in app, to be copied to dist.
@@ -70,6 +73,27 @@ if push
 
 git or just use spawn?
 sync with shell.js?
+
+check grunt spawn http://gruntjs.com/api/grunt.util instead of exec.
+https://github.com/gruntjs/grunt-contrib-clean/blob/master/tasks/clean.js#L54
+
+better async error pattern
+http://stackoverflow.com/questions/13957303/nodejs-grunt-child-process-callback-function-example
+
+note cm uses double quotes, they must escape their own cm messages
+switch to regexing/ replacing projectInfo
+
+??? Switch to sync?
+??? Better control flow?
+
+??? Is it bad to use callbacks but manip vars in root scope?
+remote branch must be created by this package, or you have to pull first, then clear the working directory
+
+??? Maybe try streams for network actions, pushing and pulling
+
+Built with Generator Jekyllrb, branch: master, commit: sakj12
+Built from RobSite, commit ^·&%F on branch GitPage
+
 
 ## Similar projects with limitations
 

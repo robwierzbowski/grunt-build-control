@@ -6,6 +6,21 @@
  * Licensed under the MIT license.
  */
 
+//// Output:
+// grunt branch_portal:def
+// Running "branch_portal:def" (branch_portal) task
+// Commiting changes to branch "breancho".[breancho 1dfb3b9] Built from %sourceName%, commit undefined on branch undefined
+//  4 files changed, 1 insertion(+)
+//  rename corbu.js => gharn.css (100%)
+//  create mode 100644 stopo.css
+//  create mode 100644 this01.js
+// Pushing breancho to git@github.com:robwierzbowski/grunt-portal-branch.gitTo git@github.com:robwierzbowski/grunt-portal-branch.git
+//  * [new branch]      HEAD -> breancho
+
+//// Add linebreaks
+//// fix output
+//// fix cm token replacement
+
 'use strict';
 
 module.exports = function (grunt) {
@@ -36,6 +51,9 @@ module.exports = function (grunt) {
 
       // Check that the target directory exists
       fs.stat(options.dir, function (err, stats) {
+
+        // TODO: make dir if it doesn't exist
+
         if (err) {
           grunt.fail.warn('The target directory "' + options.dir + '" must exist.');
           done(false);
@@ -46,7 +64,7 @@ module.exports = function (grunt) {
       });
     }
 
-    // Get source project information
+    // Get source project information for %tokens%
     function buildSourceInfo (next) {
       // Super minimal flow control. Probably a better way to do this.
       var count = 2;
@@ -77,6 +95,7 @@ module.exports = function (grunt) {
     }
 
     // Initialize git repo if one doesn't exist
+    // TODO: check that this errs and creates git repo correctly
     function initGit (next) {
       fs.stat(path.join(options.dir, '.git'), function (err, stats) {
         if (err) {
@@ -112,6 +131,7 @@ module.exports = function (grunt) {
           });
         }
         else {
+          // Branch exists, continue
           next();
         }
       });
@@ -130,6 +150,8 @@ module.exports = function (grunt) {
       });
     }
 
+
+    // TODO: Pull/fetch before each commit
     // Stage and commit to a branch
     function gitCommit (next) {
       var commitMsg;
@@ -163,7 +185,7 @@ module.exports = function (grunt) {
                 done(false);
               }
               else {
-                grunt.log.write('Commiting changes to branch "' + options.branch + '".');
+                grunt.log.write('Committed changes to branch "' + options.branch + '".');
                 grunt.log.write(stdout);
                 next();
               }
@@ -177,9 +199,10 @@ module.exports = function (grunt) {
     function gitPush (next) {
       var args = '';
 
-      if (options.force) {
-        args += '-f ';
-      }
+      // TODO: Impliment later
+      // if (options.force) {
+      //   args += '-f ';
+      // }
 
       exec('git push ' + args + options.remote + ' HEAD:' + options.branch, {cwd: options.dir}, function (err, stdout, stderr) {
         if (err) {
@@ -187,8 +210,13 @@ module.exports = function (grunt) {
           done(false);
         }
         else {
-          grunt.log.write('Pushing ' + options.branch + ' to ' + options.remote);
+          grunt.log.write('Pushed ' + options.branch + ' to ' + options.remote);
           grunt.log.write(stderr);
+
+          // TODO: Give good error messages:
+          // - if push doesn't work because of network ?
+          // - if push doesn't work because of repo - fix yo shit
+
           next();
         }
       });
@@ -215,6 +243,5 @@ module.exports = function (grunt) {
         });
       });
     });
-
   });
 };

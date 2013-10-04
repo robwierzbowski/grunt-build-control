@@ -30,22 +30,24 @@ module.exports = function(grunt) {
     // Configuration to be run (and then tested).
     //// Add configuration for tests
     branch_portal: {
-      default_options: {
-        options: {
-        },
-        files: {
-          'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123'],
-        },
+      options: {
+        dir: 'aDir',
+        branch: 'aBranch',
+        remote: 'git@github.com:robwierzbowski/grunt-portal-branch.git',
+        message: 'commit message'
       },
-      custom_options: {
+      def: {
         options: {
-          separator: ': ',
-          punctuation: ' !!!',
-        },
-        files: {
-          'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123'],
-        },
-      },
+          branch: 'breancho',
+          commit: true,
+          push: true
+        }
+      }//,
+      // custom_options: {
+      //   options: {
+      //     other: "htad"
+      //   }
+      // },
     },
 
     // Unit tests.
