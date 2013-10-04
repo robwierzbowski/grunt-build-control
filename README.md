@@ -1,6 +1,6 @@
 # grunt-version-build
 
-> Create and manage 'portal' branches that contain only subdirectories of your main branch. Useful for publishing built code to Github Pages.
+> Version built code next to your project's source.
 
 ## Getting started
 
@@ -18,27 +18,28 @@ After the plugin has been installed, load it in your Gruntfile with:
 grunt.loadNpmTasks('grunt-version-build');
 ```
 
-### Setting up .gitignore
+### Setting up your project
 
-<!-- // one time setup
-Must manually add dist dir to app gitignore.
-If desired, must manually create new gitignore in app, to be copied to dist.
- -->
+Grunt-version-build requires a [Yeoman](http://yeoman.io) style directory structure where a build process outputs compiled and minified code to a subdirectory inside the main project. 
 
-## version_build task
+```
+project/
+  .gitignore   <- source code
+  Gruntfile.js <- source code
+  app/         <- source code
+  dist/        <- build process outputs code in this unversioned directory
+```
+
+Before you start:
+
+1. Make sure the build directory is added to the main project's .gitignore.
+1. Make sure the build process does not delete the .git directory inside the build directory.
+
+## Version_build task
 
 _Run this task with the `grunt version_build` command._
 
-This task helps you version and deploy your project's built code alongside your project's source code. 
-
-The grunt task can commit, generates automated commit messages, and push the branches containing built code to your source code repo or to a remote repositiory for deployment.
-
-<!-- - This is not a general node git tool. Use grunt-git-xxxwhatever for that
-- Preserves commit history in non-local branch
-- Works with clean and build task, or as part of build task. 
-- can be the same dir for multiple portal branches
-- works with existing branches, won't overwrite previous cm history 
- -->
+This task helps you version and deploy a project's built code alongside its source code. You can use it to keep source code and built code on different branches of the same repository, and to deploy built code to git based services like Github Pages, Heroku, and Scalr.
 
 ### Options
 
