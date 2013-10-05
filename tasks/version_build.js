@@ -53,8 +53,8 @@ module.exports = function (grunt) {
 
     // Get source project information for %tokens%
     function buildSourceInfo () {
-      var sourceBranch = shelljs.exec('git symbolic-ref --quiet HEAD');
-      var sourceCommit = shelljs.exec('git rev-parse --short HEAD');
+      var sourceBranch = shelljs.exec('git symbolic-ref --quiet HEAD', {silent: true});
+      var sourceCommit = shelljs.exec('git rev-parse --short HEAD', {silent: true});
 
       if(sourceBranch.code === 0) {
         sourceInfo.branch = sourceBranch.output.split('/').pop().replace(/\n/g, '');
@@ -64,7 +64,7 @@ module.exports = function (grunt) {
         sourceInfo.commit = sourceCommit.output.replace(/\n/g, '');
       }
 
-      if (shelljs.test('-f', 'package.json')) {
+      if (shelljs.test('-f', 'package.json', {silent: true})) {
         sourceInfo.name = JSON.parse(fs.readFileSync('package.json', 'utf8')).name;
       }
     }
