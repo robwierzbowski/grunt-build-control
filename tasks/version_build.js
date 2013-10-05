@@ -44,10 +44,7 @@ module.exports = function (grunt) {
       // Check that the dist directory exists
       if (!fs.existsSync(options.dir)) {
         grunt.log.writeln('Creating target directory "' + options.dir + '".');
-
-        if (shelljs.mkdir(options.dir)) {
-          throw('Unable to create the target directory "' + options.dir + '".');
-        }
+        shelljs.mkdir(options.dir);
       }
     }
 
