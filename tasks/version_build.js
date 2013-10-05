@@ -23,7 +23,13 @@ module.exports = function (grunt) {
       commitMsg: 'Built from commit %sourceCommit% on branch %sourceBranch%',
       force: false
     });
-    var sourceInfo = {};
+
+    var sourceInfo = {
+      branch: '(unavailable)',
+      commit: '(unavailable)',
+      name:   '(unavailable)'
+    };
+
     var currentDir = shelljs.pwd();
 
     // Check requirements
@@ -53,22 +59,13 @@ module.exports = function (grunt) {
       if(sourceBranch.code === 0) {
         sourceInfo.branch = sourceBranch.output.split('/').pop().replace(/\n/g, '');
       }
-      else {
-        sourceInfo.branch = '(unavailable)';
-      }
 
       if (sourceCommit.code === 0) {
         sourceInfo.commit = sourceCommit.output.replace(/\n/g, '');
       }
-      else {
-        sourceInfo.commit = '(unavailable)';
-      }
 
-      if (fs.existsSync('package.json')) {
+      if (shelljs.test('-f', 'package.json')) {
         sourceInfo.name = JSON.parse(fs.readFileSync('package.json', 'utf8')).name;
-      }
-      else {
-        sourceInfo.name = '(unavailable)';
       }
     }
 
