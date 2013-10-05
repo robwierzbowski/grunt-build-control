@@ -68,7 +68,7 @@ module.exports = function (grunt) {
 
     // Initialize git repo if one doesn't exist
     function initGit () {
-      if (!fs.existsSync(path.join(options.dir, '.git'))) {
+      if (!fs.existsSync(path.join(gruntDir, options.dir, '.git'))) {
         grunt.log.writeln('Creating git repository in ' + options.dir + '.');
 
         if (shelljs.exec('git init').code !== 0) {
