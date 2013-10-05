@@ -62,7 +62,7 @@ The branch to commit to.
 Type: `String`
 Default: *No default, required*
 
-The remote to push your branch to. This can be any repository, including your source code repository.
+The remote to push your branch to. Common choices include a remote built code repository (Heroku or Scalr), your source code repository's remote (Github), or the local source code repository itself (`../`).
 
 #### commit
 
