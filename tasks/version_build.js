@@ -42,10 +42,10 @@ module.exports = function (grunt) {
       });
 
       // Check that the dist directory exists
-      if(!fs.existsSync(options.dir)) {
+      if (!fs.existsSync(options.dir)) {
         grunt.log.writeln('Creating target directory "' + options.dir + '".');
 
-        if(shelljs.mkdir(options.dir)) {
+        if (shelljs.mkdir(options.dir)) {
           throw('Unable to create the target directory "' + options.dir + '".');
         }
       }
@@ -56,7 +56,7 @@ module.exports = function (grunt) {
       var sourceBranch = shelljs.exec('git symbolic-ref --quiet HEAD', {silent: true});
       var sourceCommit = shelljs.exec('git rev-parse --short HEAD', {silent: true});
 
-      if(sourceBranch.code === 0) {
+      if (sourceBranch.code === 0) {
         sourceInfo.branch = sourceBranch.output.split('/').pop().replace(/\n/g, '');
       }
 
@@ -74,7 +74,7 @@ module.exports = function (grunt) {
       if (!fs.existsSync(path.join(options.dir, '.git'))) {
         grunt.log.writeln('Creating git repository in ' + options.dir + '.');
 
-        if(shelljs.exec('git init').code !== 0) {
+        if (shelljs.exec('git init').code !== 0) {
           throw("Could not initialize the local git repo."); // TODO: show stderrs for easier debugging
         }
       }
@@ -94,14 +94,14 @@ module.exports = function (grunt) {
       //   return
 
       // If branch exists
-      if(shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch).code === 0) {
+      if (shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch).code === 0) {
         return;
       }
       // If branch doesn't exist
       else {
 
         // Create branch if it doesn't exist
-        if(shelljs.exec('git checkout --orphan ' + options.branch).code !== 0) {
+        if (shelljs.exec('git checkout --orphan ' + options.branch).code !== 0) {
           throw("Could not create branch."); // TODO: show stderrs for easier debugging
         }
 
@@ -109,7 +109,7 @@ module.exports = function (grunt) {
         grunt.log.writeln('Checking to see if the branch exists remotely...');
 
         // Check if remote branch exists
-        if(shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch).code === 0) {
+        if (shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch).code === 0) {
 
           // TODO: fetch remote branch
           // grunt.log.writeln('Remote branch exists.');
@@ -122,12 +122,12 @@ module.exports = function (grunt) {
         //// Creating local branch with initial commit
         grunt.log.writeln('Remote branch does not exist. Adding an initial commit.');
 
-        if(shelljs.exec('git commit --allow-empty -m "Initial Commit."').code !== 0) {
+        if (shelljs.exec('git commit --allow-empty -m "Initial Commit."').code !== 0) {
           throw('Could not create an initial commit.'); // TODO: show stderrs for easier debugging
         }
 
         // TODO: move push to push task, or do we need this?
-        // if(shelljs.exec('git push --set-upstream ' + options.remote + ' HEAD:' + options.branch).code !== 0) {
+        // if (shelljs.exec('git push --set-upstream ' + options.remote + ' HEAD:' + options.branch).code !== 0) {
         //   throw('Could not push initial branch.'); // TODO: show stderrs for easier debugging
         // }
       }
@@ -140,7 +140,7 @@ module.exports = function (grunt) {
       // TODO: this should be safecheckout / move head ref
       grunt.log.writeln('Pulling latest from remote.');
 
-      if(shelljs.exec('git pull ' + options.remote + ' ' + options.branch).code !== 0) {
+      if (shelljs.exec('git pull ' + options.remote + ' ' + options.branch).code !== 0) {
         throw('Could not pull local branch.');
       }
     }
@@ -152,12 +152,12 @@ module.exports = function (grunt) {
       var status = shelljs.exec('git status --porcelain');
 
       // Unstage any changes, just in case
-      if(shelljs.exec('git reset').code !== 0) {
+      if (shelljs.exec('git reset').code !== 0) {
         grunt.log.writeln('Could not unstage local changes.');
       }
 
       // Make sure there are differneces to commit
-      if(status.code !== 0) {
+      if (status.code !== 0) {
         throw('Could not execute git status.'); // TODO: show stderrs for easier debugging
       }
 
@@ -174,7 +174,7 @@ module.exports = function (grunt) {
         .replace(/%sourceBranch%/g, sourceInfo.branch);
 
       // Stage and commit
-      if(shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"').code !== 0) {
+      if (shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"').code !== 0) {
         throw('Unable to commit changes locally.'); // TODO: show stderrs for easier debugging
       }
 
@@ -194,7 +194,7 @@ module.exports = function (grunt) {
         args += '-f ';
       }
 
-      if(shelljs.exec('git push ' + args + options.remote + ' HEAD:' + options.branch).code !== 0) {
+      if (shelljs.exec('git push ' + args + options.remote + ' HEAD:' + options.branch).code !== 0) {
         throw('Unable to push changes to remote.'); // TODO: show stderr for better debugging
       }
 
