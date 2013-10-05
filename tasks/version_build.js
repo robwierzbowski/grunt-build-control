@@ -42,7 +42,7 @@ module.exports = function (grunt) {
       });
 
       // Check that the dist directory exists
-      if(!shelljs.test('-d', options.dir)) {
+      if(!fs.existsSync(options.dir)) {
         grunt.log.writeln('Creating target directory "' + options.dir + '".');
 
         if(shelljs.mkdir(options.dir)) {
@@ -71,8 +71,8 @@ module.exports = function (grunt) {
 
     // Initialize git repo if one doesn't exist
     function initGit () {
-      if(!shelljs.test('-d', path.join(options.dir, '.git'))) {
-        grunt.log.writeln("Creating local git repo.");
+      if (!fs.existsSync(path.join(options.dir, '.git'))) {
+        grunt.log.writeln('Creating git repository in ' + options.dir + '.');
 
         if(shelljs.exec('git init').code !== 0) {
           throw("Could not initialize the local git repo."); // TODO: show stderrs for easier debugging
