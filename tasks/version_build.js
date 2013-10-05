@@ -181,7 +181,7 @@ module.exports = function (grunt) {
       grunt.log.writeln('Committed changes to branch "' + options.branch + '".'); // TODO: show stdout for better reporting
     }
 
-    // TODO: Impliment tag option
+    // TODO: Implement tag option
     // Pronounced "gihttag"
     // function gitTag () {
     // }
