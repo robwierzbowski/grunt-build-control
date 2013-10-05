@@ -30,7 +30,7 @@ module.exports = function (grunt) {
       name:   '(unavailable)'
     };
 
-    var currentDir = shelljs.pwd();
+    var gruntDir = shelljs.pwd();
 
     // Check requirements
     function checkRequirements (next) {
@@ -230,7 +230,7 @@ module.exports = function (grunt) {
       done(false);
     }
     finally {
-      shelljs.cd(currentDir);
+      shelljs.cd(gruntDir);
     }
   });
 };
