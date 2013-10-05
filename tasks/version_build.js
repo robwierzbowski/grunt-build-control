@@ -24,7 +24,7 @@ module.exports = function (grunt) {
       force: false
     });
 
-    var sourceInfo = {
+    var tokens = {
       branch: '(unavailable)',
       commit: '(unavailable)',
       name:   '(unavailable)'
@@ -48,21 +48,19 @@ module.exports = function (grunt) {
       }
     }
 
-    // Get source project information for %tokens%
-    function buildSourceInfo () {
+    // Assign %token% values if available
+    function assignTokens () {
       var sourceBranch = shelljs.exec('git symbolic-ref --quiet HEAD', {silent: true});
       var sourceCommit = shelljs.exec('git rev-parse --short HEAD', {silent: true});
 
       if (sourceBranch.code === 0) {
-        sourceInfo.branch = sourceBranch.output.split('/').pop().replace(/\n/g, '');
+        tokens.branch = sourceBranch.output.split('/').pop().replace(/\n/g, '');
       }
-
       if (sourceCommit.code === 0) {
-        sourceInfo.commit = sourceCommit.output.replace(/\n/g, '');
+        tokens.commit = sourceCommit.output.replace(/\n/g, '');
       }
-
       if (shelljs.test('-f', 'package.json', {silent: true})) {
-        sourceInfo.name = JSON.parse(fs.readFileSync('package.json', 'utf8')).name;
+        tokens.name = JSON.parse(fs.readFileSync('package.json', 'utf8')).name;
       }
     }
 
@@ -166,9 +164,9 @@ module.exports = function (grunt) {
 
       // Parse tokens in commit message
       commitMsg = options.commitMsg
-        .replace(/%sourceName%/g, sourceInfo.name)
-        .replace(/%sourceCommit%/g, sourceInfo.commit)
-        .replace(/%sourceBranch%/g, sourceInfo.branch);
+        .replace(/%sourceName%/g, tokens.name)
+        .replace(/%sourceCommit%/g, tokens.commit)
+        .replace(/%sourceBranch%/g, tokens.branch);
 
       // Stage and commit
       if (shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"').code !== 0) {
@@ -202,7 +200,7 @@ module.exports = function (grunt) {
     try {
 
       checkRequirements();
-      buildSourceInfo();
+      assignTokens();
 
       // Change working directory
       shelljs.cd(options.dir);
