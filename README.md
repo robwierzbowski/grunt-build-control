@@ -136,6 +136,10 @@ grunt.initConfig({
 
 #### Example usage
 
+<!-- ## Todo:
+ - replace as many porcelain commands as possible with plumbing.
+ -->
+
 <!-- ## Similar projects with limitations
 
 https://npmjs.org/package/grunt-github-pages
