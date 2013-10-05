@@ -106,50 +106,34 @@ module.exports = function (grunt) {
 
     // Make the current working tree the branch HEAD without checking out files
     function safeCheckout () {
-
-      // TODO: not sure why we're pulling in here
-      // TODO: this should be safecheckout / move head ref
-      grunt.log.writeln('Pulling latest from remote.');
-
-      if (shelljs.exec('git pull ' + options.remote + ' ' + options.branch).code !== 0) {
-        throw('Could not pull local branch.');
-      }
+      shelljs.exec('git symbolic-ref HEAD refs/heads/' + options.branch);
     }
 
     // Stage and commit to a branch
     function gitCommit () {
-      // TODO: Pull/fetch before each commit
-      var commitMsg;
       var status = shelljs.exec('git status --porcelain');
-
-      // Unstage any changes, just in case
-      if (shelljs.exec('git reset').code !== 0) {
-        grunt.log.writeln('Could not unstage local changes.');
-      }
-
-      // Make sure there are differneces to commit
-      if (status.code !== 0) {
-        throw('Could not execute git status.'); // TODO: show stderrs for easier debugging
-      }
-
-      if (status.output === '') {
-        // No changes, skip commit
-        grunt.log.writeln('There have been no changes, skipping commit.'); //// reword
-        return;
-      }
-
-      // Parse tokens in commit message
-      commitMsg = options.commitMsg
+      var commitMsg = options.commitMsg
         .replace(/%sourceName%/g, tokens.name)
         .replace(/%sourceCommit%/g, tokens.commit)
         .replace(/%sourceBranch%/g, tokens.branch);
 
-      // Stage and commit
-      if (shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"').code !== 0) {
-        throw('Unable to commit changes locally.'); // TODO: show stderrs for easier debugging
+      // Unstage any changes, just in case
+      shelljs.exec('git reset');
+
+      // If there are no changes, skip commit
+      if (status.output === '') {
+        grunt.log.writeln('No changes to your branch. Skipping commit.');
+        return;
       }
 
-      grunt.log.writeln('Committed changes to branch "' + options.branch + '".'); // TODO: show stdout for better reporting
+      // Fetch changes from remote branch
+      // TODO: need to catch a non-existing remote.
+      grunt.log.writeln('Fetching remote branch ' + options.branch + '.');
+      shelljs.exec('git fetch --tags --verbose ' + options.remote + ' ' + options.branch + ':' + options.branch);
+
+      // Stage and commit
+      grunt.log.writeln('Committing changes to ' + options.branch + '.');
+      shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"');
     }
 
     // TODO: Implement tag option
