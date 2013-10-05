@@ -35,7 +35,7 @@ Before you start:
 1. Make sure the build directory is added to the main project's .gitignore.
 1. Make sure the build process does not delete the .git directory inside the build directory.
 
-## Version_build task
+## version_build task
 
 _Run this task with the `grunt version_build` command._
 
@@ -89,7 +89,7 @@ Force push to your remote repo. Not recommended but here if you need it. -->
 
 #### commitMsg
 
-TyType: `String`
+Type: `String`
 Default: `Built from %sourceName%, commit %sourceCommit% on branch %sourceBranch%`
 
 The commit message to use when `commit` is true. It must be a safe commit message for the command line.
