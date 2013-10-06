@@ -75,6 +75,12 @@ module.exports = function (grunt) {
       }
     }
 
+    // Fetch remote refs
+    function gitFetch() {
+      grunt.log.writeln('Fetching remote branch ' + options.branch + '.');
+      shelljs.exec('git fetch --tags --verbose ' + options.remote + ' ' + options.branch + ':' + options.branch);
+    }
+
     // Create branch if it doesn't exist
     function initBranch () {
 
@@ -85,10 +91,7 @@ module.exports = function (grunt) {
       // If branch exists on remote, fetch it
       else if (shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch, {silent: true}).code === 0) {
 
-        grunt.log.writeln('Fetching remote branch ' + options.branch + '.');
-
-        shelljs.exec('git fetch --tags --verbose ' + options.remote + ' ' + options.branch + ':' + options.branch);
-
+        gitFetch();
         return;
       }
       // If branch doesn't exist anywhere, create it
@@ -126,10 +129,11 @@ module.exports = function (grunt) {
         return;
       }
 
-      // Fetch changes from remote branch
-      // TODO: need to catch a non-existing remote.
-      grunt.log.writeln('Fetching remote branch ' + options.branch + '.');
-      shelljs.exec('git fetch --tags --verbose ' + options.remote + ' ' + options.branch + ':' + options.branch);
+      // Fetch changes from remote branch if it exists
+      if (shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch, {silent: true}).code === 0) {
+
+        gitFetch();
+      }
 
       // Stage and commit
       grunt.log.writeln('Committing changes to ' + options.branch + '.');
