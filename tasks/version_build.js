@@ -68,10 +68,7 @@ module.exports = function (grunt) {
     function initGit () {
       if (!fs.existsSync(path.join(gruntDir, options.dir, '.git'))) {
         grunt.log.subhead('Creating git repository in ' + options.dir + '.');
-
-        if (shelljs.exec('git init').code !== 0) {
-          throw("Could not initialize the local git repo."); // TODO: show stderrs for easier debugging
-        }
+        shelljs.exec('git init');
       }
     }
 
