@@ -73,7 +73,7 @@ module.exports = function (grunt) {
     }
 
     // Fetch remote refs
-    function gitFetch() {
+    function gitFetch () {
       grunt.log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
 
       // `--update-head-ok` allows fetch on the current branch
