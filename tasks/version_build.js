@@ -111,7 +111,6 @@ module.exports = function (grunt) {
 
     // Stage and commit to a branch
     function gitCommit () {
-      var status = shelljs.exec('git status --porcelain');
       var commitMsg = options.commitMsg
         .replace(/%sourceName%/g, tokens.name)
         .replace(/%sourceCommit%/g, tokens.commit)
@@ -121,7 +120,7 @@ module.exports = function (grunt) {
       shelljs.exec('git reset', {silent: true});
 
       // If there are no changes, skip commit
-      if (status.output === '') {
+      if (shelljs.exec('git status --porcelain', {silent: true}).output === '') {
         grunt.log.writeln('No changes to your branch. Skipping commit.');
         return;
       }
