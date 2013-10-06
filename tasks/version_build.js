@@ -159,7 +159,6 @@ module.exports = function (grunt) {
 
     // Run task
     try {
-
       checkRequirements();
       assignTokens();
 
@@ -168,7 +167,7 @@ module.exports = function (grunt) {
 
       initGit();
       initBranch();
-      safeCheckout(); // TODO: this will change when safeChk is redefined
+      safeCheckout();
 
       if (options.commit) {
         gitCommit();
