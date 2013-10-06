@@ -33,7 +33,7 @@ module.exports = function (grunt) {
     var gruntDir = shelljs.pwd();
 
     // Check requirements
-    function checkRequirements (next) {
+    function checkRequirements () {
       // Check that required options are set.
       ['branch', 'dir', 'remote'].forEach( function (element) {
         if (!options.hasOwnProperty(element)) {
