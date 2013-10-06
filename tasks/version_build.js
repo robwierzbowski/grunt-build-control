@@ -180,8 +180,6 @@ module.exports = function (grunt) {
       if (options.push) {
         gitPush();
       }
-
-      done(true);
     }
     catch (e) {
       grunt.fail.warn(e);
@@ -189,6 +187,7 @@ module.exports = function (grunt) {
     }
     finally {
       shelljs.cd(gruntDir);
+      done(true);
     }
   });
 };
