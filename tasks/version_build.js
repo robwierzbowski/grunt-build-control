@@ -139,7 +139,7 @@ module.exports = function (grunt) {
 
     // Push branch to remote
     function gitPush () {
-      var args = '';
+      var args = '--tags ';
 
       if (options.force) {
         args += '-f ';
