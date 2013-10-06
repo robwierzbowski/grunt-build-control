@@ -43,7 +43,7 @@ module.exports = function (grunt) {
 
       // Check that the dist directory exists
       if (!fs.existsSync(options.dir)) {
-        grunt.log.writeln('Creating target directory "' + options.dir + '".');
+        grunt.log.subhead('Creating target directory "' + options.dir + '".');
         shelljs.mkdir(options.dir);
       }
     }
@@ -67,7 +67,7 @@ module.exports = function (grunt) {
     // Initialize git repo if one doesn't exist
     function initGit () {
       if (!fs.existsSync(path.join(gruntDir, options.dir, '.git'))) {
-        grunt.log.writeln('Creating git repository in ' + options.dir + '.');
+        grunt.log.subhead('Creating git repository in ' + options.dir + '.');
 
         if (shelljs.exec('git init').code !== 0) {
           throw("Could not initialize the local git repo."); // TODO: show stderrs for easier debugging
@@ -77,7 +77,7 @@ module.exports = function (grunt) {
 
     // Fetch remote refs
     function gitFetch() {
-      grunt.log.writeln('Fetching remote branch ' + options.branch + '.');
+      grunt.log.subhead('Fetching remote branch ' + options.branch + '.');
       shelljs.exec('git fetch --tags --verbose ' + options.remote + ' ' + options.branch + ':' + options.branch);
     }
 
@@ -97,7 +97,7 @@ module.exports = function (grunt) {
       // If branch doesn't exist anywhere, create it
       else {
 
-        grunt.log.writeln('Creating ' + options.branch + ' branch.');
+        grunt.log.subhead('Creating branch "' + options.branch + '".');
 
         shelljs.exec('git checkout --orphan ' + options.branch);
         shelljs.exec('git reset', {silent: true});
@@ -136,7 +136,7 @@ module.exports = function (grunt) {
       }
 
       // Stage and commit
-      grunt.log.writeln('Committing changes to ' + options.branch + '.');
+      grunt.log.subhead('Committing changes to ' + options.branch + '.');
       shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"');
     }
 
@@ -153,7 +153,7 @@ module.exports = function (grunt) {
         args += '-f ';
       }
 
-      grunt.log.writeln('Pushing ' + options.branch + ' to ' + options.remote);
+      grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
       shelljs.exec('git push ' + args + options.remote + ' HEAD:' + options.branch);
     }
 
