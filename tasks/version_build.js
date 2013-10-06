@@ -16,11 +16,13 @@ module.exports = function (grunt) {
   grunt.registerMultiTask('version_build', 'Version built code next to your project\'s source.', function() {
 
     var done = this.async();
+    var gruntDir = shelljs.pwd();
+
     var options = this.options({
       commit: false,
       // tag: false,
       push: false,
-      commitMsg: 'Built from commit %sourceCommit% on branch %sourceBranch%',
+      commitMsg: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
       force: false
     });
 
@@ -29,8 +31,6 @@ module.exports = function (grunt) {
       commit: '(unavailable)',
       name:   '(unavailable)'
     };
-
-    var gruntDir = shelljs.pwd();
 
     // Check requirements
     function checkRequirements () {
@@ -123,7 +123,7 @@ module.exports = function (grunt) {
 
       // If there are no changes, skip commit
       if (shelljs.exec('git status --porcelain', {silent: true}).output === '') {
-        grunt.log.writeln('No changes to your branch. Skipping commit.');
+        grunt.log.subhead('No changes to your branch. Skipping commit.');
         return;
       }
 
