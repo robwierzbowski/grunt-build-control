@@ -145,7 +145,7 @@ module.exports = function (grunt) {
     // function gitTag () {
     // }
 
-    // Push portal branch to the remote
+    // Push branch to remote
     function gitPush () {
       var args = '';
 
@@ -153,11 +153,8 @@ module.exports = function (grunt) {
         args += '-f ';
       }
 
-      if (shelljs.exec('git push ' + args + options.remote + ' HEAD:' + options.branch).code !== 0) {
-        throw('Unable to push changes to remote.'); // TODO: show stderr for better debugging
-      }
-
-      grunt.log.writeln('Pushed ' + options.branch + ' to ' + options.remote); // TODO: show stdout for better reporting
+      grunt.log.writeln('Pushing ' + options.branch + ' to ' + options.remote);
+      shelljs.exec('git push ' + args + options.remote + ' HEAD:' + options.branch);
     }
 
     // Run task
