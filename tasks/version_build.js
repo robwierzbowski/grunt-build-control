@@ -121,7 +121,7 @@ module.exports = function (grunt) {
         .replace(/%sourceBranch%/g, tokens.branch);
 
       // Unstage any changes, just in case
-      shelljs.exec('git reset');
+      shelljs.exec('git reset', {silent: true});
 
       // If there are no changes, skip commit
       if (status.output === '') {
