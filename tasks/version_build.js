@@ -74,8 +74,10 @@ module.exports = function (grunt) {
 
     // Fetch remote refs
     function gitFetch() {
-      grunt.log.subhead('Fetching remote branch ' + options.branch + '.');
-      shelljs.exec('git fetch --tags --verbose ' + options.remote + ' ' + options.branch + ':' + options.branch);
+      grunt.log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
+
+      // `--update-head-ok` allows fetch on the current branch
+      shelljs.exec('git fetch --tags --verbose --update-head-ok ' + options.remote + ' ' + options.branch + ':' + options.branch);
     }
 
     // Create branch if it doesn't exist
@@ -125,12 +127,6 @@ module.exports = function (grunt) {
         return;
       }
 
-      // Fetch changes from remote branch if it exists
-      if (shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch, {silent: true}).code === 0) {
-
-        gitFetch();
-      }
-
       // Stage and commit
       grunt.log.subhead('Committing changes to ' + options.branch + '.');
       shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"');
@@ -164,6 +160,17 @@ module.exports = function (grunt) {
       initGit();
       initBranch();
       safeCheckout();
+
+      // Fetch changes from remote branch if it exists
+      // TODO: Instead of checking if the remote exists, it would be better to
+      // - check if remote is ahead of local
+      // - check if remote is a ff merge
+      // and if so, gitFetch(). Otherwise throw helpful, descriptive errors
+      // Possible references:
+      // - http://stackoverflow.com/questions/3258243/git-check-if-pull-needed
+      if (shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch, {silent: true}).code === 0) {
+        gitFetch();
+      }
 
       if (options.commit) {
         gitCommit();
