@@ -33,21 +33,22 @@ module.exports = function(grunt) {
         dir: 'dist',
         remote: '../',
         branch: 'gh-pages',
-        message: 'Check *this* out.'
       },
-      def: {
+      test_branch: {
         options: {
           branch: 'test-branch',
           commit: true,
           push: true
         }
-      }//,
-      // custom_options: {
-      //   options: {
-      //     remote: 'git@github.com:robwierzbowski/grunt-version-build.git',
-      //     other: 'test-branch-dos'
-      //   }
-      // },
+      },
+      production: {
+        options: {
+          branch: 'prod',
+          // remote: 'git@github.com:robwierzbowski/grunt-version-build.git',
+          message: 'Check *this* out.',
+          commit: true
+        }
+      }
     },
 
     // Unit tests.
