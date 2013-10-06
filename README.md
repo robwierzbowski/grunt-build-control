@@ -42,9 +42,6 @@ If you're using a [Yeoman](http://yeoman.io) generator these are probably taken 
 
 _Run this task with the `grunt version_build` command._
 
-
-
-
 This task automates version control tasks for a project's built code. You can use it to:
 
 - Commit your built code with messages that reference the corresponding commit of the main project.
@@ -155,7 +152,7 @@ Running `grunt version_build:heroku` will commit the built code to the master br
 
 #### Usage notes
 
-Don't check out the built code branches while in the main project directory.
+Don't check out built code branches while in the main project directory.
 
 `version_build` is a synchronous task, and fetches commits from your remote before committing or pushing. Depending on the location of your remote, the size of commits, and network speed it can be a long running task.
 
