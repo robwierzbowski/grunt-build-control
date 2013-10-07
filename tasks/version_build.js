@@ -22,8 +22,7 @@ module.exports = function (grunt) {
       commit: false,
       // tag: false,
       push: false,
-      commitMsg: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
-      force: false
+      commitMsg: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%'
     });
 
     var tokens = {
@@ -143,14 +142,8 @@ module.exports = function (grunt) {
 
     // Push branch to remote
     function gitPush () {
-      var args = '--tags ';
-
-      if (options.force) {
-        args += '-f ';
-      }
-
       grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
-      shelljs.exec('git push ' + args + options.remote + ' HEAD:' + options.branch);
+      shelljs.exec('git push --tags ' + options.remote + ' HEAD:' + options.branch);
     }
 
     // Run task

@@ -72,13 +72,6 @@ Default: `false`
 
 Pushes the `branch` to `remote`.
 
-<!-- #### force
-
-Type: `Boolean`  
-Default: `false`  
-
-Force push to the remote repository. Not recommended but here if you need it. -->
-
 #### commitMsg
 
 Type: `String`  
