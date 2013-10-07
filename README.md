@@ -85,6 +85,13 @@ You can use the following tokens to print information about the main project:
 - `%sourceBranch%`: The main project's current branch
 - `%sourceCommit%`: The main project's most recent commit
 
+#### connectCommits
+
+Type: `Boolean`  
+Default: `true`  
+
+Prevent committing or pushing built code when the main project has uncommitted  changes. This ensures that every commit on the built code is directly connected to a commit on the source code.
+
 ### Usage
 
 A common use of grunt-version-build is to commit and push built code to the Github pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku. 

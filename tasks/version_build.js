@@ -22,7 +22,8 @@ module.exports = function (grunt) {
       commit: false,
       // tag: false,
       push: false,
-      commitMsg: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%'
+      commitMsg: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
+      connectCommits: true
     });
 
     var tokens = {
@@ -48,6 +49,14 @@ module.exports = function (grunt) {
       if (!fs.existsSync(options.dir)) {
         grunt.log.subhead('Creating target directory "' + options.dir + '".');
         shelljs.mkdir(options.dir);
+      }
+
+      // If connectCommits is true check that the main project's working
+      // directory is clean
+      if (options.connectCommits && shelljs.exec('git diff', {silent: true}).output !== '') {
+        throw ('There are uncommitted changes in your working directory. \n' +
+          'Please commit changes to the main project before you commit to \n' +
+          'the built code.\n');
       }
     }
 
