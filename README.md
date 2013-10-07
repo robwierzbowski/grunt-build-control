@@ -19,34 +19,19 @@ After the plugin has been installed, load it in your Gruntfile with:
 grunt.loadNpmTasks('grunt-version-build');
 ```
 
-## Setting up your project
-
-To use this plugin your project must have a compile or build process that outputs code to a subdirectory of the main project:
-
-```
-project/
-  .gitignore   <- source code
-  Gruntfile.js <- source code
-  app/         <- source code
-  dist/        <- build process outputs here
-```
-
-Before you start:
-
-1. Make sure the build directory is added to the main project's .gitignore.
-1. Make sure the build process does not delete the .git directory inside the build directory.
-
-If you're using a [Yeoman](http://yeoman.io) generator these are probably taken care of already.
-
 ## version_build task
 
 _Run this task with the `grunt version_build` command._
 
-This task automates version control tasks for a project's built code. You can use it to:
+This task automates version control tasks for your project's built code. You can use it to automate committing and commit messages, maintain multiple branches of built code, and push built code branches to remote repositories.
 
-- Commit your built code with messages that reference the corresponding commit of the main project.
-- Version multiple branches of built code.
-- Push built code branches to a remote, for example the Github pages branch of your main project repository or Heroku.
+### Setup
+
+To use grunt-version-build your project must have a compile or build process that outputs code to a subdirectory of the main project.
+
+<!-- The code in the build subdirectory will be versioned as the root directory on branches separated from your main project repository's history. -->
+
+Add the build directory to the main project's .gitignore, and make sure the build process doesn't delete .git directories inside the build directory. If you're using a [Yeoman](http://yeoman.io) generator these are probably taken care of already.
 
 ### Options
 
@@ -146,21 +131,21 @@ grunt.registerTask('build', [
 
 In the above example a user is working on a Yeoman-based web app, with source code hosted at `git@github.com:example_user/example_webapp.git`. When they're ready to deploy they first run `grunt build` to build a minified, optimized version of their app into the 'dist' directory. 
 
-Running `grunt version_build:gh_pages` will commit the built code to the gh-pages branch of the 'dist/.git' repository and push to the gh-pages branch `git@github.com:example_user/example_webapp.git`. 
+Running `grunt version_build:gh_pages` will commit the built code to the gh-pages branch of the 'dist/.git' repository and push to the gh-pages branch of `git@github.com:example_user/example_webapp.git`. 
 
 Running `grunt version_build:heroku` will commit the built code to the master branch of the 'dist/.git' repository and push to the master branch of `git@heroku.com:example-heroku-webapp-1988.git`.
 
 #### Usage notes
 
-Don't check out built code branches while in the main project directory.
+`version_build` will add commits on top of the existing history of the remote branch if available.
 
-`version_build` is a synchronous task, and fetches commits from your remote before committing or pushing. Depending on the location of your remote, the size of commits, and network speed it can be a long running task.
+`version_build` is a synchronous task, and fetches from your remote before each commit or push. Depending on the location of your remote, the size of commits, and network speed it can be a long running task.
 
-You should run `version_build` manually or after all other tasks in your build process.
+It's best to run `version_build` manually after your build process or as the last step in your build process.
 
-If a git conflict occurs, manually resolve it inside the built code directory.
+If a git conflict occurs you must manually resolve it inside the built code directory.
 
-`version_build` won't erase history, and will add commits on top of the history of the remote branch if available. This makes it easy to start and stop using `version_build` at any time.
+Don't check out built code branches while in the main project directory. Differences in untracked files will likely cause issues.
 
 <!-- 
 ## Todo:
