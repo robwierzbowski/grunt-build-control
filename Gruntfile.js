@@ -38,7 +38,8 @@ module.exports = function(grunt) {
         options: {
           branch: 'test-branch',
           commit: true,
-          push: true
+          push: true,
+          connectCommits: false
         }
       },
       production: {
