@@ -32,9 +32,18 @@ module.exports = function (grunt) {
       name:   '(unavailable)'
     };
 
-    // Use shellResult to store the return object for shelljs/node functions
-    // that operate on the file system (for error handling)
-    var shellResult = {};
+    // Wraps shellJs calls that are acting on the file directory to give good
+    // Grunt output and error handling
+    function execWrap(command) {
+      var shellResult = shelljs.exec(command, {silent: true});
+
+      if (shellResult.code !== 0) {
+        throw gitError;
+      }
+      else {
+        grunt.log.writeln(shellResult.output);
+      }
+    }
 
     // Check requirements
     function checkRequirements () {
@@ -84,10 +93,7 @@ module.exports = function (grunt) {
       if (!fs.existsSync(path.join(gruntDir, options.dir, '.git'))) {
         grunt.log.subhead('Creating git repository in ' + options.dir + '.');
 
-        shellResult = shelljs.exec('git init');
-        if (shellResult.code !== 0) {
-          throw shellResult.output;
-        }
+        execWrap('git init');
       }
     }
 
@@ -96,18 +102,12 @@ module.exports = function (grunt) {
       grunt.log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
 
       // `--update-head-ok` allows fetch on the current branch
-      shellResult = shelljs.exec('git fetch --tags --verbose --update-head-ok ' + options.remote + ' ' + options.branch + ':' + options.branch);
-      if (shellResult.code !== 0) {
-        throw shellResult.output;
-      }
+      execWrap('git fetch --tags --verbose --update-head-ok ' + options.remote + ' ' + options.branch + ':' + options.branch);
     }
 
     // Make sure the stage is clean
     function gitReset () {
-      shellResult = shelljs.exec('git reset', {silent: true});
-      if (shellResult.code !== 0) {
-        throw shellResult.output;
-      }
+      execWrap('git reset');
     }
 
     // Create branch if it doesn't exist
@@ -126,27 +126,17 @@ module.exports = function (grunt) {
       else {
         grunt.log.subhead('Creating branch "' + options.branch + '".');
 
-        shellResult = shelljs.exec('git checkout --orphan ' + options.branch);
-        if (shellResult.code !== 0) {
-          throw shellResult.output;
-        }
-
+        execWrap('git checkout --orphan ' + options.branch);
         gitReset();
 
         // Initialize branch so we can move the HEAD ref around
-        shellResult = shelljs.exec('git commit --allow-empty -m "Initial commit"');
-        if (shellResult.code !== 0) {
-          throw shellResult.output;
-        }
+        execWrap('git commit --allow-empty -m "Initial commit"');
       }
     }
 
     // Make the current working tree the branch HEAD without checking out files
     function safeCheckout () {
-      shellResult = shelljs.exec('git symbolic-ref HEAD refs/heads/' + options.branch);
-      if (shellResult.code !== 0) {
-        throw shellResult.output;
-      }
+      execWrap('git symbolic-ref HEAD refs/heads/' + options.branch);
     }
 
     // Stage and commit to a branch
@@ -167,10 +157,7 @@ module.exports = function (grunt) {
 
       // Stage and commit
       grunt.log.subhead('Committing changes to ' + options.branch + '.');
-      shellResult = shelljs.exec('git add -A . && git commit -m "' + commitMsg + '"');
-      if (shellResult.code !== 0) {
-        throw shellResult.output;
-      }
+      execWrap('git add -A . && git commit -m "' + commitMsg + '"');
     }
 
     // TODO: Implement tag option
@@ -181,10 +168,7 @@ module.exports = function (grunt) {
     // Push branch to remote
     function gitPush () {
       grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
-      shellResult = shelljs.exec('git push --tags ' + options.remote + ' HEAD:' + options.branch);
-      if (shellResult.code !== 0) {
-        throw shellResult.output;
-      }
+      execWrap('git push --tags ' + options.remote + ' HEAD:' + options.branch);
     }
 
     // Run task
