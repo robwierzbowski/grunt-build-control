@@ -45,9 +45,11 @@ module.exports = function(grunt) {
       production: {
         options: {
           branch: 'prod',
-          // remote: 'git@github.com:robwierzbowski/grunt-version-build.git',
+          remote: 'git@github.com:robwierzbowski/grunt-version-build.git',
           message: 'Check *this* out.',
-          commit: true
+          commit: true,
+          connectCommits: false,
+          push: true
         }
       }
     },

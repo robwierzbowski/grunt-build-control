@@ -11,12 +11,14 @@
 module.exports = function (grunt) {
   var fs = require('fs');
   var path = require('path');
+  var crypto = require('crypto');
   var shelljs = require('shelljs');
 
   grunt.registerMultiTask('version_build', 'Version built code next to your project\'s source.', function() {
 
     var done = this.async();
     var gruntDir = shelljs.pwd();
+    var remoteName = null;
 
     var options = this.options({
       commit: false,
@@ -32,16 +34,16 @@ module.exports = function (grunt) {
       name:   '(unavailable)'
     };
 
-    // Wraps shellJs calls that are acting on the file directory to give good
-    // Grunt output and error handling
+    // Wraps shellJs calls that act on the file structure to give better Grunt
+    // output and error handling
     function execWrap(command) {
       var shellResult = shelljs.exec(command, {silent: true});
 
-      if (shellResult.code !== 0) {
-        throw shellResult.output;
+      if (shellResult.code === 0) {
+        grunt.log.writeln(shellResult.output);
       }
       else {
-        grunt.log.writeln(shellResult.output);
+        throw shellResult.output;
       }
     }
 
@@ -97,60 +99,111 @@ module.exports = function (grunt) {
       }
     }
 
-    //// Remote
+    // Create a named remote if one doesn't exist
+    function initRemote () {
+      remoteName = crypto.createHash('md5').update(options.remote).digest('hex').substring(0, 6);
 
-    // Fetch remote refs to a specific branch, equivalent to a pull without checkout
-    function gitFetch () {
-      grunt.log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
+      // Alternative: query by git config
+      // if (shelljs.exec('git config remote.' + remoteName + '.url').output !== '') {
+      if (shelljs.exec('git remote', {silent: true}).output.indexOf(remoteName) === -1) {
+        grunt.log.subhead('Configuring remote.');
 
-      //// Remote
-
-      // `--update-head-ok` allows fetch on the current branch
-      execWrap('git fetch --tags --verbose --update-head-ok ' + options.remote + ' ' + options.branch + ':' + options.branch);
+        execWrap('git remote add ' + remoteName + ' ' + options.remote);
+      }
     }
 
-    // function fetchTest () {
-    //   // git fetch
-    //   // git status -sb --porcelain
-    //   // output
-    //   // ## master...origin/master [ahead 1, behind 1]
-    // }
+    // Create branch if it doesn't exist
+    // TODO: can probably simplify
+    function initBranch () {
+      // If branch exists
+      if (shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch, {silent: true}).code === 0) {
+
+        // If it's not tracking the remote
+        if (shelljs.exec('git config branch.' + options.branch + '.remote' !== remoteName)) {
+
+          // If remote exists
+          if (shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.branch, {silent: true}).code === 0) {
+
+            // Track the remote branch
+            execWrap('git branch --set-upstream-to=' + remoteName + '/' + options.branch + ' ' + options.branch);
+          }
+          else {
+            // Push and track upstram branch
+            // Alternative: create new feature branch w/o pushing local branch
+            // http://stackoverflow.com/questions/2574266/is-it-possible-in-git-to-create-a-new-empty-remote-branch-without-pushing
+            gitPush();
+          }
+        }
+        return;
+      }
+      // If branch exists on remote
+      else if (shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.branch, {silent: true}).code === 0) {
+
+        // Create tracking local branch
+        execWrap('git branch --track ' + options.branch  + ' ' + remoteName + '/' + options.branch);
+        return;
+      }
+      // If branch doesn't exist anywhere
+      else {
+        grunt.log.subhead('Creating branch "' + options.branch + '".');
+
+        // Create local branch
+        execWrap('git checkout --orphan ' + options.branch);
+
+        // Initialize branch so we can move the HEAD ref around
+        execWrap('git commit --allow-empty -m "Initial commit"');
+
+        // Push and track upstram branch
+        execWrap('git push -u ' + remoteName + ' ' +  options.branch);
+      }
+    }
+
+    // Check if local branch should safeUpdate
+    // Requires fetched local refs
+    function shouldUpdate() {
+      var status = shelljs.exec('git status -sb --porcelain', {silent: true});
+      var ahead = false;
+      var behind = false;
+
+      if (status.code === 0) {
+        ahead = status.output.indexOf('ahead') === -1 ? false : true;
+        behind = status.output.indexOf('behind') === -1 ? false : true;
+
+        if (ahead && behind) {
+          throw('The remote and local branches have diverged. Please \n' +
+            'resolve manually before attempting again.');
+        }
+        else if (ahead) {
+          return false;
+        }
+        else if (behind) {
+          return true;
+        }
+      }
+    }
+
+    // Fetch remote refs to a specific branch, equivalent to a pull without
+    // checkout
+    function safeUpdate () {
+      grunt.log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
+
+      // `--update-head-ok` allows fetch on the current branch
+      execWrap('git fetch --tags --verbose --update-head-ok ' + remoteName + ' ' + options.branch + ':' + options.branch);
+    }
+
+    // Make the current working tree the branch HEAD without checking out files
+    function safeCheckout () {
+      execWrap('git symbolic-ref HEAD refs/heads/' + options.branch);
+    }
 
     // Make sure the stage is clean
     function gitReset () {
       execWrap('git reset');
     }
 
-    // Create branch if it doesn't exist
-    function initBranch () {
-      // If branch exists, all is good
-      if (shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch, {silent: true}).code === 0) {
-        return;
-      }
-
-      //// Remote
-
-      // If branch exists on remote, fetch it
-      else if (shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch, {silent: true}).code === 0) {
-
-        gitFetch();
-        return;
-      }
-      // If branch doesn't exist anywhere, create it
-      else {
-        grunt.log.subhead('Creating branch "' + options.branch + '".');
-
-        execWrap('git checkout --orphan ' + options.branch);
-        gitReset();
-
-        // Initialize branch so we can move the HEAD ref around
-        execWrap('git commit --allow-empty -m "Initial commit"');
-      }
-    }
-
-    // Make the current working tree the branch HEAD without checking out files
-    function safeCheckout () {
-      execWrap('git symbolic-ref HEAD refs/heads/' + options.branch);
+    // Fetch remote refs
+    function gitFetch () {
+      execWrap('git fetch --tags ' + remoteName);
     }
 
     // Stage and commit to a branch
@@ -159,9 +212,6 @@ module.exports = function (grunt) {
         .replace(/%sourceName%/g, tokens.name)
         .replace(/%sourceCommit%/g, tokens.commit)
         .replace(/%sourceBranch%/g, tokens.branch);
-
-      // Unstage any changes, just in case
-      gitReset();
 
       // If there are no changes, skip commit
       if (shelljs.exec('git status --porcelain', {silent: true}).output === '') {
@@ -179,12 +229,11 @@ module.exports = function (grunt) {
     // function gitTag () {
     // }
 
-    //// Remote
-
     // Push branch to remote
+    // TODO: Maybe break tracking out into its own function?
     function gitPush () {
       grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
-      execWrap('git push --tags ' + options.remote + ' HEAD:' + options.branch);
+      execWrap('git push -u --tags ' + remoteName + ' ' + options.branch);
     }
 
     // Run task
@@ -196,21 +245,18 @@ module.exports = function (grunt) {
       shelljs.cd(options.dir);
 
       initGit();
+      initRemote();
+
+      gitFetch();
+
       initBranch();
-      safeCheckout();
 
-      //// Remote
-
-      // Fetch changes from remote branch if it exists
-      // TODO: Instead of checking if the remote exists, it would be better to
-      // - check if remote is ahead of local
-      // - check if remote is a ff merge
-      // and if so, gitFetch(). Otherwise throw helpful, descriptive errors
-      // Possible references:
-      // - http://stackoverflow.com/questions/3258243/git-check-if-pull-needed
-      if (shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch, {silent: true}).code === 0) {
-        gitFetch();
+      if (shouldUpdate()) {
+        safeUpdate();
       }
+
+      gitReset();
+      safeCheckout();
 
       if (options.commit) {
         gitCommit();
