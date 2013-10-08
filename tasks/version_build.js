@@ -74,10 +74,9 @@ module.exports = function (grunt) {
       if (shelljs.test('-f', 'package.json', {silent: true})) {
         tokens.name = JSON.parse(fs.readFileSync('package.json', 'utf8')).name;
       }
-      // TODO: Use containing directory name if package.json isn't available
-      // else {
-      //
-      // }
+      else {
+        tokens.name = process.cwd().split('/').pop();
+      }
     }
 
     // Initialize git repo if one doesn't exist
