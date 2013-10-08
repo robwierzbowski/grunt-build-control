@@ -38,7 +38,7 @@ module.exports = function (grunt) {
       var shellResult = shelljs.exec(command, {silent: true});
 
       if (shellResult.code !== 0) {
-        throw gitError;
+        throw shellResult.output;
       }
       else {
         grunt.log.writeln(shellResult.output);
