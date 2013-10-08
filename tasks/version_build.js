@@ -97,13 +97,24 @@ module.exports = function (grunt) {
       }
     }
 
+    //// Remote
+
     // Fetch remote refs to a specific branch, equivalent to a pull without checkout
     function gitFetch () {
       grunt.log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
 
+      //// Remote
+
       // `--update-head-ok` allows fetch on the current branch
       execWrap('git fetch --tags --verbose --update-head-ok ' + options.remote + ' ' + options.branch + ':' + options.branch);
     }
+
+    // function fetchTest () {
+    //   // git fetch
+    //   // git status -sb --porcelain
+    //   // output
+    //   // ## master...origin/master [ahead 1, behind 1]
+    // }
 
     // Make sure the stage is clean
     function gitReset () {
@@ -116,6 +127,9 @@ module.exports = function (grunt) {
       if (shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch, {silent: true}).code === 0) {
         return;
       }
+
+      //// Remote
+
       // If branch exists on remote, fetch it
       else if (shelljs.exec('git ls-remote --exit-code ' + options.remote + ' ' + options.branch, {silent: true}).code === 0) {
 
@@ -165,6 +179,8 @@ module.exports = function (grunt) {
     // function gitTag () {
     // }
 
+    //// Remote
+
     // Push branch to remote
     function gitPush () {
       grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
@@ -182,6 +198,8 @@ module.exports = function (grunt) {
       initGit();
       initBranch();
       safeCheckout();
+
+      //// Remote
 
       // Fetch changes from remote branch if it exists
       // TODO: Instead of checking if the remote exists, it would be better to
