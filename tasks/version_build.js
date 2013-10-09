@@ -56,10 +56,9 @@ module.exports = function (grunt) {
         }
       });
 
-      // Check that the dist directory exists
+      // Check that the build directory exists
       if (!fs.existsSync(options.dir)) {
-        grunt.log.subhead('Creating target directory "' + options.dir + '".');
-        shelljs.mkdir(options.dir);
+        throw('Build directory "' + options.dir + '" doesn\'t exist.');
       }
 
       // If connectCommits is true check that the main project's working
