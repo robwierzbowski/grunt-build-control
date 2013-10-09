@@ -60,14 +60,6 @@ module.exports = function (grunt) {
       if (!fs.existsSync(options.dir)) {
         throw('Build directory "' + options.dir + '" doesn\'t exist.');
       }
-
-      // If connectCommits is true check that the main project's working
-      // directory is clean
-      if (options.connectCommits && shelljs.exec('git diff', {silent: true}).output !== '') {
-        throw ('There are uncommitted changes in your working directory. \n' +
-          'Please commit changes to the main project before you commit to \n' +
-          'the built code.\n');
-      }
     }
 
     // Assign %token% values if available
@@ -211,6 +203,14 @@ module.exports = function (grunt) {
         .replace(/%sourceName%/g, tokens.name)
         .replace(/%sourceCommit%/g, tokens.commit)
         .replace(/%sourceBranch%/g, tokens.branch);
+
+      // If connectCommits is true check that the main project's working
+      // directory is clean
+      if (options.connectCommits && shelljs.exec('git diff', {silent: true}).output !== '') {
+        throw ('There are uncommitted changes in your working directory. \n' +
+          'Please commit changes to the main project before you commit to \n' +
+          'the built code.\n');
+      }
 
       // If there are no changes, skip commit
       if (shelljs.exec('git status --porcelain', {silent: true}).output === '') {

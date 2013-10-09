@@ -90,7 +90,7 @@ You can use the following tokens to print information about the main project:
 Type: `Boolean`  
 Default: `true`  
 
-Prevent committing or pushing built code when the main project has uncommitted  changes. This ensures that every commit on the built code is directly connected to a commit on the source code.
+Prevent committing built code when the main project has uncommitted changes. Ensures that every grunt-version-build commit is built from a corrosponding commit on the source code.
 
 ### Usage
 
