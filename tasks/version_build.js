@@ -275,6 +275,7 @@ module.exports = function (grunt) {
       done(false);
     }
     finally {
+      // Revert working directory
       shelljs.cd(gruntDir);
       done(true);
     }
