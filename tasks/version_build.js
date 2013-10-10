@@ -132,7 +132,7 @@ module.exports = function (grunt) {
 
         // Fetch to get all the refs from the remote. Without this the next command will fail if ref to the remote
         // branch does not exist locally.
-        execWrap('git fetch');
+        execWrap('git fetch ' + remoteName);
 
         // Create tracking local branch
         execWrap('git branch --track ' + options.branch  + ' ' + remoteName + '/' + options.branch);
