@@ -48,7 +48,6 @@ module.exports = function(grunt) {
           remote: 'git@github.com:robwierzbowski/grunt-version-build.git',
           message: 'Check *this* out.',
           commit: true,
-          connectCommits: false,
           push: true
         }
       }
