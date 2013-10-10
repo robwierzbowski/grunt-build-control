@@ -118,7 +118,7 @@ module.exports = function (grunt) {
       if (shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch, {silent: true}).code === 0) {
 
         // If it's not tracking the remote
-        if (shelljs.exec('git config branch.' + options.branch + '.remote' !== remoteName)) {
+        if (shelljs.exec('git config branch.' + options.branch + '.remote', {silent: true}).output.replace(/\n/g, '') !== remoteName) {
 
           // If remote exists
           if (shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.branch, {silent: true}).code === 0) {
