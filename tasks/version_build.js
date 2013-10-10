@@ -130,10 +130,6 @@ module.exports = function (grunt) {
       // If branch exists on remote
       else if (shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.branch, {silent: true}).code === 0) {
 
-        // Fetch to get all the refs from the remote. Without this the next command will fail if ref to the remote
-        // branch does not exist locally.
-        execWrap('git fetch ' + remoteName);
-
         // Create tracking local branch
         execWrap('git branch --track ' + options.branch  + ' ' + remoteName + '/' + options.branch);
         return;
@@ -198,7 +194,7 @@ module.exports = function (grunt) {
 
     // Fetch remote refs
     function gitFetch () {
-      execWrap('git fetch --tags ' + remoteName);
+      execWrap('git fetch ' + remoteName);
     }
 
     // Stage and commit to a branch
