@@ -258,7 +258,8 @@ module.exports = function (grunt) {
         safeUpdate();
       }
 
-      gitReset();
+      //TODO: Run a query to see if we need to do a reset. If the local branch is new and uncommitted doing a git reset will fail.
+      //gitReset();
       safeCheckout();
 
       if (options.commit) {
