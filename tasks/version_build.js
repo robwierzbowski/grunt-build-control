@@ -40,7 +40,7 @@ module.exports = function (grunt) {
       var shellResult = shelljs.exec(command, {silent: true});
 
       if (shellResult.code === 0) {
-        grunt.log.writeln(shellResult.output);
+        grunt.log.write(shellResult.output);
       }
       else {
         throw shellResult.output;
