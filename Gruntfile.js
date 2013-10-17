@@ -32,7 +32,7 @@ module.exports = function(grunt) {
       options: {
         dir: 'dist',
       },
-      test_branch: {
+      testbranch: {
         options: {
           branch: 'test-branch',
           remote: '../',
