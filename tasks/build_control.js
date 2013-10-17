@@ -106,7 +106,7 @@ module.exports = function (grunt) {
 
     // Create a named remote if one doesn't exist
     function initRemote () {
-      remoteName = crypto.createHash('md5').update(options.remote).digest('hex').substring(0, 6);
+      remoteName = "remote-" + crypto.createHash('md5').update(options.remote).digest('hex').substring(0, 6);
 
       // Alternative: query by git config
       // if (shelljs.exec('git config remote.' + remoteName + '.url').output !== '') {
