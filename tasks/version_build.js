@@ -187,7 +187,7 @@ module.exports = function (grunt) {
       grunt.log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
 
       // `--update-head-ok` allows fetch on the current branch
-      execWrap('git fetch --tags --verbose --update-head-ok ' + remoteName + ' ' + options.branch + ':' + options.branch);
+      execWrap('git fetch --verbose --update-head-ok ' + remoteName + ' ' + options.branch + ':' + options.branch);
     }
 
     // Make the current working tree the branch HEAD without checking out files
