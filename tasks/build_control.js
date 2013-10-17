@@ -149,7 +149,7 @@ module.exports = function (grunt) {
         execWrap('git checkout --orphan ' + options.branch);
 
         // Initialize branch so we can move the HEAD ref around
-        execWrap('git commit --allow-empty -m "Initial commit"');
+        execWrap('git commit --allow-empty -m "Initial commit."');
 
         // Push and track upstream branch
         gitPush();
@@ -255,6 +255,8 @@ module.exports = function (grunt) {
 
       // Tasks for pushing and committing
       gitFetch();
+      gitReset();
+
       initBranch();
 
       if (shouldUpdate()) {
@@ -262,7 +264,6 @@ module.exports = function (grunt) {
       }
 
       safeCheckout();
-      gitReset();
 
       if (options.commit) {
         gitCommit();
