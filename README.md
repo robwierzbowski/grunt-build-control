@@ -22,7 +22,7 @@ grunt.loadNpmTasks('grunt-build-control');
 
 _Run this task with the `grunt buildcontrol` command._
 
-This task automates version control tasks for your project's built code. 
+Automate version control tasks for your project's built code. 
 
 Keep built code in sync with source code, maintain multiple branches of built code, commit with automatic messages, and push to remote repositories.
 
