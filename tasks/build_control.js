@@ -14,7 +14,7 @@ module.exports = function (grunt) {
   var crypto = require('crypto');
   var shelljs = require('shelljs');
 
-  grunt.registerMultiTask('build_control', 'Version control built code.', function() {
+  grunt.registerMultiTask('buildcontrol', 'Version control built code.', function() {
 
     var done = this.async();
     var gruntDir = shelljs.pwd();

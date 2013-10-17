@@ -28,7 +28,7 @@ module.exports = function(grunt) {
     },
 
     // Configuration to be run (and then tested).
-    build_control: {
+    buildcontrol: {
       options: {
         dir: 'dist',
       },
@@ -70,7 +70,7 @@ module.exports = function(grunt) {
   // plugin's task(s), then test the result.
   grunt.registerTask('test', [
     'clean',
-    'build_control',
+    'buildcontrol',
     'nodeunit'
   ]);
 

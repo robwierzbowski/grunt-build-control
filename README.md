@@ -18,9 +18,9 @@ After the plugin has been installed, load it in your Gruntfile with:
 grunt.loadNpmTasks('grunt-build-control');
 ```
 
-## build_control task
+## buildcontrol task
 
-_Run this task with the `grunt build_control` command._
+_Run this task with the `grunt buildcontrol` command._
 
 This task automates version control tasks for your project's built code. 
 
@@ -101,7 +101,7 @@ grunt.initConfig({
   
   // Various Grunt tasks...
 
-  build_control: {
+  buildcontrol: {
     options: {
       dir: 'dist',
       commit: true,
@@ -136,19 +136,19 @@ grunt.registerTask('build', [
 
 In this example a user is working on a Yeoman-based web app, with their project's source code hosted at `git@github.com:example_user/example_webapp.git`. To deploy they first run `grunt build` to build a minified, optimized version of their app into the 'dist' directory. 
 
-Running `grunt build_control:pages` commits the built code to the gh-pages branch of the 'dist/.git' repository and pushes to the gh-pages branch of `git@github.com:example_user/example_webapp.git`. 
+Running `grunt buildcontrol:pages` commits the built code to the gh-pages branch of the 'dist/.git' repository and pushes to the gh-pages branch of `git@github.com:example_user/example_webapp.git`. 
 
-Running `grunt build_control:heroku` will commit the built code to the master branch of the 'dist/.git' repository and push to the master branch of `git@heroku.com:example-heroku-webapp-1988.git`.
+Running `grunt buildcontrol:heroku` will commit the built code to the master branch of the 'dist/.git' repository and push to the master branch of `git@heroku.com:example-heroku-webapp-1988.git`.
 
-Running `grunt build_control:local` will commit the built code to the build branch of the 'dist/.git' repository and push to the build branch of the local source code repository. The local project repository can then be synced with a remote.
+Running `grunt buildcontrol:local` will commit the built code to the build branch of the 'dist/.git' repository and push to the build branch of the local source code repository. The local project repository can then be synced with a remote.
 
 #### Usage notes
 
-`build_control` will add commits on top of the existing history of the remote branch if available.
+`buildcontrol` will add commits on top of the existing history of the remote branch if available.
 
-`build_control` is a synchronous task, and fetches from your remote before each commit or push. Depending on the location of your remote, the size of commits, and network speed it can be a long running task.
+`buildcontrol` is a synchronous task, and fetches from your remote before each commit or push. Depending on the location of your remote, the size of commits, and network speed it can be a long running task.
 
-It's best to run `build_control` manually after your build process or as the last step in a build and deploy task.
+It's best to run `buildcontrol` manually after your build process or as the last step in a build and deploy task.
 
 If a git conflict occurs you must manually resolve it inside the built code directory.
 
