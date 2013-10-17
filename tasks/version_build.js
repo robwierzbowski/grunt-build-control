@@ -232,7 +232,7 @@ module.exports = function (grunt) {
     // TODO: Maybe break tracking out into its own function?
     function gitPush () {
       grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
-      execWrap('git push -u --tags ' + remoteName + ' ' + options.branch);
+      execWrap('git push -u ' + remoteName + ' ' + options.branch);
     }
 
     // Run task
