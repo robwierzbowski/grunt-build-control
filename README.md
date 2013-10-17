@@ -71,7 +71,7 @@ Default: `false`
 
 Pushes `branch` to `remote`.
 
-#### commitMsg
+#### message
 
 Type: `String`  
 Default: `Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%  `

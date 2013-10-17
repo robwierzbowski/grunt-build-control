@@ -24,7 +24,7 @@ module.exports = function (grunt) {
       commit: false,
       // tag: false,
       push: false,
-      commitMsg: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
+      message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
       connectCommits: true
     });
 
@@ -206,7 +206,7 @@ module.exports = function (grunt) {
 
     // Stage and commit to a branch
     function gitCommit () {
-      var commitMsg = options.commitMsg
+      var message = options.message
         .replace(/%sourceName%/g, tokens.name)
         .replace(/%sourceCommit%/g, tokens.commit)
         .replace(/%sourceBranch%/g, tokens.branch);
@@ -219,7 +219,7 @@ module.exports = function (grunt) {
 
       // Stage and commit
       grunt.log.subhead('Committing changes to ' + options.branch + '.');
-      execWrap('git add -A . && git commit -m "' + commitMsg + '"');
+      execWrap('git add -A . && git commit -m "' + message + '"');
     }
 
     // TODO: Implement tag option
