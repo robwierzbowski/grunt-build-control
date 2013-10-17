@@ -1,7 +1,6 @@
 # grunt-version-build
 
-<!-- > Version built code next to your project's source. -->
-> Version control your built code.
+> Version control built code.
 
 ## Getting started
 
@@ -23,15 +22,15 @@ grunt.loadNpmTasks('grunt-version-build');
 
 _Run this task with the `grunt version_build` command._
 
-This task automates version control tasks for your project's built code. You can use it to automate committing and commit messages, maintain multiple branches of built code, and push built code branches to remote repositories.
+This task automates version control tasks for your project's built code. 
+
+Keep built code in sync with source code, maintain multiple branches of built code, commit with automatic messages, and push to remote repositories.
 
 ### Setup
 
-To use grunt-version-build your project must have a compile or build process that outputs code to a subdirectory of the main project.
+Your project must have a compile or build process that outputs code to a subdirectory of the main project.
 
-<!-- The code in the build subdirectory will be versioned as the root directory on branches separated from your main project repository's history. -->
-
-Add the build directory to the main project's .gitignore, and make sure the build process doesn't delete .git directories inside the build directory. If you're using a [Yeoman](http://yeoman.io) generator these are probably taken care of already.
+Add the build directory to the main project's .gitignore, and make sure the build process doesn't delete .git directories inside the build directory. If you're using a [Yeoman](http://yeoman.io) generator these steps are taken care of for you already.
 
 ### Options
 
@@ -70,18 +69,18 @@ Commits built code to `branch`. A new commit is only created if the built code h
 Type: `Boolean`  
 Default: `false`  
 
-Pushes the `branch` to `remote`.
+Pushes `branch` to `remote`.
 
 #### commitMsg
 
 Type: `String`  
 Default: `Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%  `
 
-The commit message to use when `commit` is true. It must be a safe commit message for the command line, with special characters and double quotes escaped.
+The commit message to use when committing. It must be a safe commit message for the command line, with special characters and double quotes escaped.
 
 You can use the following tokens to print information about the main project:
 
-- `%sourceName%`: The main project's name taken from package.json
+- `%sourceName%`: The main project's name, read from package.json or the project directory
 - `%sourceBranch%`: The main project's current branch
 - `%sourceCommit%`: The main project's most recent commit
 
@@ -90,11 +89,11 @@ You can use the following tokens to print information about the main project:
 Type: `Boolean`  
 Default: `true`  
 
-Prevent committing built code when the main project has uncommitted changes. Ensures that every grunt-version-build commit is built from a corrosponding commit on the source code.
+Make sure that every commit on the built code branch matches a commit on the main project branch. If the main project's working directory has uncommitted changes, a commit task will throw an error.
 
 ### Usage
 
-A common use of grunt-version-build is to commit and push built code to the Github pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku. 
+A common use of grunt-version-build is to commit and push built code to the GitHub pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku. 
 
 ```js
 // Project configuration.
@@ -109,7 +108,7 @@ grunt.initConfig({
       push: true,
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%'
     },
-    gh_pages: {
+    pages: {
       options: {
         remote: 'git@github.com:example_user/example_webapp.git',
         branch: 'gh-pages'
@@ -120,6 +119,12 @@ grunt.initConfig({
         remote: 'git@heroku.com:example-heroku-webapp-1988.git',
         branch: 'master'
       }
+    },
+    local: {
+      options: {
+        remote: '../',
+        branch: 'build'
+      }
     }
   }
 });
@@ -129,11 +134,13 @@ grunt.registerTask('build', [
 ]);
 ```
 
-In the above example a user is working on a Yeoman-based web app, with source code hosted at `git@github.com:example_user/example_webapp.git`. When they're ready to deploy they first run `grunt build` to build a minified, optimized version of their app into the 'dist' directory. 
+In this example a user is working on a Yeoman-based web app, with their project's source code hosted at `git@github.com:example_user/example_webapp.git`. To deploy they first run `grunt build` to build a minified, optimized version of their app into the 'dist' directory. 
 
-Running `grunt version_build:gh_pages` will commit the built code to the gh-pages branch of the 'dist/.git' repository and push to the gh-pages branch of `git@github.com:example_user/example_webapp.git`. 
+Running `grunt version_build:pages` commits the built code to the gh-pages branch of the 'dist/.git' repository and pushes to the gh-pages branch of `git@github.com:example_user/example_webapp.git`. 
 
 Running `grunt version_build:heroku` will commit the built code to the master branch of the 'dist/.git' repository and push to the master branch of `git@heroku.com:example-heroku-webapp-1988.git`.
+
+Running `grunt version_build:local` will commit the built code to the build branch of the 'dist/.git' repository and push to the build branch of the local source code repository. The local project repository can then be synced with a remote.
 
 #### Usage notes
 
@@ -141,15 +148,16 @@ Running `grunt version_build:heroku` will commit the built code to the master br
 
 `version_build` is a synchronous task, and fetches from your remote before each commit or push. Depending on the location of your remote, the size of commits, and network speed it can be a long running task.
 
-It's best to run `version_build` manually after your build process or as the last step in your build process.
+It's best to run `version_build` manually after your build process or as the last step in a build and deploy task.
 
 If a git conflict occurs you must manually resolve it inside the built code directory.
 
-Don't check out built code branches while in the main project directory. Differences in untracked files will likely cause issues.
+Don't check out built code branches while in the main project directory. Differences in untracked files can cause issues.
 
 <!-- 
 ## Todo:
 
+- add tag option
 - replace as many porcelain commands as possible with plumbing.
 - describe or list similar projects with limitations?  
   https://npmjs.org/package/grunt-github-pages  

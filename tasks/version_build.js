@@ -58,7 +58,7 @@ module.exports = function (grunt) {
 
       // Check that the build directory exists
       if (!fs.existsSync(options.dir)) {
-        throw('Build directory "' + options.dir + '" doesn\'t exist.');
+        throw('Build directory "' + options.dir + '" doesn\'t exist. Nothing to version.');
       }
 
       // If connectCommits is true check that the main project's working
