@@ -36,11 +36,17 @@ module.exports = function (grunt) {
 
     // Wraps shellJs calls that act on the file structure to give better Grunt
     // output and error handling
-    function execWrap(command) {
+    // Args:
+    // - command: the shell command
+    // - verbose: show output on the cli, defaults to true
+    function execWrap(command, verbose) {
       var shellResult = shelljs.exec(command, {silent: true});
+      verbose = typeof verbose === 'undefined' ? true : verbose;
 
       if (shellResult.code === 0) {
-        grunt.log.write(shellResult.output);
+        if (verbose) {
+          grunt.log.write(shellResult.output);
+        }
       }
       else {
         throw shellResult.output;
@@ -191,12 +197,12 @@ module.exports = function (grunt) {
 
     // Make sure the stage is clean
     function gitReset () {
-      execWrap('git reset');
+      execWrap('git reset', false);
     }
 
     // Fetch remote refs
     function gitFetch () {
-      execWrap('git fetch ' + remoteName);
+      execWrap('git fetch ' + remoteName, false);
     }
 
     // Set branch to track remote
