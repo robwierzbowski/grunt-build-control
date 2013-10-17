@@ -1,6 +1,6 @@
 /*
- * grunt-version-build
- * https://github.com/robwierzbowski/grunt-version-build
+ * grunt-build-control
+ * https://github.com/robwierzbowski/grunt-build-control
  *
  * Copyright (c) 2013 Rob Wierzbowski
  * Licensed under the MIT license.
@@ -28,7 +28,7 @@ module.exports = function(grunt) {
     },
 
     // Configuration to be run (and then tested).
-    version_build: {
+    build_control: {
       options: {
         dir: 'dist',
       },
@@ -44,7 +44,7 @@ module.exports = function(grunt) {
       production: {
         options: {
           branch: 'prod',
-          remote: 'git@github.com:robwierzbowski/grunt-version-build.git',
+          remote: 'git@github.com:robwierzbowski/grunt-build-control.git',
           commit: true,
           message: 'Check *this* out.',
           push: true
@@ -71,7 +71,7 @@ module.exports = function(grunt) {
   // plugin's task(s), then test the result.
   grunt.registerTask('test', [
     'clean',
-    'version_build',
+    'build_control',
     'nodeunit'
   ]);
 

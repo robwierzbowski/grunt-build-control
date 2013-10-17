@@ -1,4 +1,4 @@
-# grunt-version-build
+# grunt-build-control
 
 > Version control built code.
 
@@ -9,18 +9,18 @@ This plugin requires [Grunt](http://gruntjs.com/) `~0.4.0` and [Git](http://git-
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide which explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with Grunt you can install the plugin with the command:
 
 ```shell
-npm install grunt-version-build --save-dev
+npm install grunt-build-control --save-dev
 ```
 
 After the plugin has been installed, load it in your Gruntfile with:
 
 ```js
-grunt.loadNpmTasks('grunt-version-build');
+grunt.loadNpmTasks('grunt-build-control');
 ```
 
-## version_build task
+## build_control task
 
-_Run this task with the `grunt version_build` command._
+_Run this task with the `grunt build_control` command._
 
 This task automates version control tasks for your project's built code. 
 
@@ -93,7 +93,7 @@ Make sure that every commit on the built code branch matches a commit on the mai
 
 ### Usage
 
-A common use of grunt-version-build is to commit and push built code to the GitHub pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku. 
+A common use of grunt-build-control is to commit and push built code to the GitHub pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku. 
 
 ```js
 // Project configuration.
@@ -101,7 +101,7 @@ grunt.initConfig({
   
   // Various Grunt tasks...
 
-  version_build: {
+  build_control: {
     options: {
       dir: 'dist',
       commit: true,
@@ -136,19 +136,19 @@ grunt.registerTask('build', [
 
 In this example a user is working on a Yeoman-based web app, with their project's source code hosted at `git@github.com:example_user/example_webapp.git`. To deploy they first run `grunt build` to build a minified, optimized version of their app into the 'dist' directory. 
 
-Running `grunt version_build:pages` commits the built code to the gh-pages branch of the 'dist/.git' repository and pushes to the gh-pages branch of `git@github.com:example_user/example_webapp.git`. 
+Running `grunt build_control:pages` commits the built code to the gh-pages branch of the 'dist/.git' repository and pushes to the gh-pages branch of `git@github.com:example_user/example_webapp.git`. 
 
-Running `grunt version_build:heroku` will commit the built code to the master branch of the 'dist/.git' repository and push to the master branch of `git@heroku.com:example-heroku-webapp-1988.git`.
+Running `grunt build_control:heroku` will commit the built code to the master branch of the 'dist/.git' repository and push to the master branch of `git@heroku.com:example-heroku-webapp-1988.git`.
 
-Running `grunt version_build:local` will commit the built code to the build branch of the 'dist/.git' repository and push to the build branch of the local source code repository. The local project repository can then be synced with a remote.
+Running `grunt build_control:local` will commit the built code to the build branch of the 'dist/.git' repository and push to the build branch of the local source code repository. The local project repository can then be synced with a remote.
 
 #### Usage notes
 
-`version_build` will add commits on top of the existing history of the remote branch if available.
+`build_control` will add commits on top of the existing history of the remote branch if available.
 
-`version_build` is a synchronous task, and fetches from your remote before each commit or push. Depending on the location of your remote, the size of commits, and network speed it can be a long running task.
+`build_control` is a synchronous task, and fetches from your remote before each commit or push. Depending on the location of your remote, the size of commits, and network speed it can be a long running task.
 
-It's best to run `version_build` manually after your build process or as the last step in a build and deploy task.
+It's best to run `build_control` manually after your build process or as the last step in a build and deploy task.
 
 If a git conflict occurs you must manually resolve it inside the built code directory.
 
@@ -168,7 +168,7 @@ Don't check out built code branches while in the main project directory. Differe
  
 ## Contribute
 
-Post bugs and feature requests to the [Github issue tracker](https://github.com/robwierzbowski/grunt-version-build/issues). In lieu of a formal styleguide, take care to maintain the existing coding style. Lint and test your code using [Grunt](https://github.com/gruntjs/grunt).
+Post bugs and feature requests to the [Github issue tracker](https://github.com/robwierzbowski/grunt-build-control/issues). In lieu of a formal styleguide, take care to maintain the existing coding style. Lint and test your code using [Grunt](https://github.com/gruntjs/grunt).
 
 ## Release History
 

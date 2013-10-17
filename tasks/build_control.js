@@ -1,6 +1,6 @@
 /*
- * grunt-version-build
- * https://github.com/robwierzbowski/grunt-version-build
+ * grunt-build-control
+ * https://github.com/robwierzbowski/grunt-build-control
  *
  * Copyright (c) 2013 Rob Wierzbowski
  * Licensed under the MIT license.
@@ -14,7 +14,7 @@ module.exports = function (grunt) {
   var crypto = require('crypto');
   var shelljs = require('shelljs');
 
-  grunt.registerMultiTask('version_build', 'Version built code next to your project\'s source.', function() {
+  grunt.registerMultiTask('build_control', 'Version control built code.', function() {
 
     var done = this.async();
     var gruntDir = shelljs.pwd();

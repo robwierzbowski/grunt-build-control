@@ -22,7 +22,7 @@ var grunt = require('grunt');
     test.ifError(value)
 */
 
-exports.version_build = {
+exports.build_control = {
   setUp: function(done) {
     // setup here if necessary
     done();

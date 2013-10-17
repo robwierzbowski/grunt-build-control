@@ -1,20 +1,20 @@
 {
-  "name": "grunt-version-build",
+  "name": "grunt-build-control",
   "description": "Create and manage 'portal' branches that contain only subdirectories of your main branch. Useful for publishing built code to Github Pages.",
   "version": "0.0.1",
-  "homepage": "https://github.com/robwierzbowski/grunt-version-build",
+  "homepage": "https://github.com/robwierzbowski/grunt-build-control",
   "author": "Rob Wierzbowski <hello@robwierzbowski.com> (http://robwierzbowski)",
   "repository": {
     "type": "git",
-    "url": "git://github.com/robwierzbowski/grunt-version-build.git"
+    "url": "git://github.com/robwierzbowski/grunt-build-control.git"
   },
   "bugs": {
-    "url": "https://github.com/robwierzbowski/grunt-version-build/issues"
+    "url": "https://github.com/robwierzbowski/grunt-build-control/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/robwierzbowski/grunt-version-build/blob/master/LICENSE-MIT"
+      "url": "https://github.com/robwierzbowski/grunt-build-control/blob/master/LICENSE"
     }
   ],
   "main": "Gruntfile.js",
