@@ -237,26 +237,28 @@ module.exports = function (grunt) {
 
     // Run task
     try {
+
+      // Preperatory tasks
       checkRequirements();
       assignTokens();
 
       // Change working directory
       shelljs.cd(options.dir);
 
+      // Git setup
       initGit();
       initRemote();
 
+      // Tasks for pushing and committing
       gitFetch();
-
       initBranch();
 
       if (shouldUpdate()) {
         safeUpdate();
       }
 
-      //TODO: Run a query to see if we need to do a reset. If the local branch is new and uncommitted doing a git reset will fail.
-      //gitReset();
       safeCheckout();
+      gitReset();
 
       if (options.commit) {
         gitCommit();
