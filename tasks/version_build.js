@@ -112,7 +112,6 @@ module.exports = function (grunt) {
     }
 
     // Create branch if it doesn't exist
-    // TODO: can probably simplify
     function initBranch () {
       // If branch exists
       if (shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch, {silent: true}).code === 0) {
@@ -120,22 +119,16 @@ module.exports = function (grunt) {
         // If it's not tracking the remote
         if (shelljs.exec('git config branch.' + options.branch + '.remote', {silent: true}).output.replace(/\n/g, '') !== remoteName) {
 
-          // If remote exists
-          if (shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.branch, {silent: true}).code === 0) {
-
-            // Track the remote branch
-            execWrap('git branch --set-upstream-to=' + remoteName + '/' + options.branch + ' ' + options.branch);
-          }
-          else {
-            // Push and track upstram branch
-            // Alternative: create new feature branch w/o pushing local branch
-            // http://stackoverflow.com/questions/2574266/is-it-possible-in-git-to-create-a-new-empty-remote-branch-without-pushing
+          // If remote doesn't exist
+          if (shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.branch, {silent: true}).code !== 0) {
             gitPush();
           }
+
+          gitTrack();
         }
         return;
       }
-      // If branch exists on remote
+      // If branch doesn't exist locally but exists on remote
       else if (shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.branch, {silent: true}).code === 0) {
 
         // Create tracking local branch
@@ -152,8 +145,9 @@ module.exports = function (grunt) {
         // Initialize branch so we can move the HEAD ref around
         execWrap('git commit --allow-empty -m "Initial commit"');
 
-        // Push and track upstram branch
-        execWrap('git push -u ' + remoteName + ' ' +  options.branch);
+        // Push and track upstream branch
+        gitPush();
+        gitTrack();
       }
     }
 
@@ -205,6 +199,11 @@ module.exports = function (grunt) {
       execWrap('git fetch ' + remoteName);
     }
 
+    // Set branch to track remote
+    function gitTrack () {
+      execWrap('git branch --set-upstream-to=' + remoteName + '/' + options.branch + ' ' + options.branch);
+    }
+
     // Stage and commit to a branch
     function gitCommit () {
       var commitMsg = options.commitMsg
@@ -229,10 +228,9 @@ module.exports = function (grunt) {
     // }
 
     // Push branch to remote
-    // TODO: Maybe break tracking out into its own function?
     function gitPush () {
       grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
-      execWrap('git push -u ' + remoteName + ' ' + options.branch);
+      execWrap('git push ' + remoteName + ' ' + options.branch);
     }
 
     // Run task
