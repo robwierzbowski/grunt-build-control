@@ -31,12 +31,11 @@ module.exports = function(grunt) {
     version_build: {
       options: {
         dir: 'dist',
-        remote: '../',
-        branch: 'gh-pages',
       },
       test_branch: {
         options: {
           branch: 'test-branch',
+          remote: '../',
           commit: true,
           push: true,
           connectCommits: false
@@ -46,8 +45,8 @@ module.exports = function(grunt) {
         options: {
           branch: 'prod',
           remote: 'git@github.com:robwierzbowski/grunt-version-build.git',
-          message: 'Check *this* out.',
           commit: true,
+          commitMsg: 'Check *this* out.',
           push: true
         }
       }
