@@ -111,7 +111,7 @@ module.exports = function (grunt) {
       // Alternative: query by git config
       // if (shelljs.exec('git config remote.' + remoteName + '.url').output !== '') {
       if (shelljs.exec('git remote', {silent: true}).output.indexOf(remoteName) === -1) {
-        grunt.log.subhead('Configuring remote.');
+        grunt.log.subhead('Creating remote.');
 
         execWrap('git remote add ' + remoteName + ' ' + options.remote);
       }
