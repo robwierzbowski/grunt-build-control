@@ -142,7 +142,23 @@ Running `grunt buildcontrol:heroku` will commit the built code to the master bra
 
 Running `grunt buildcontrol:local` will commit the built code to the build branch of the 'dist/.git' repository and push to the build branch of the local source code repository. The local project repository can then be synced with a remote.
 
-#### Usage notes
+#### Working with .gitignores
+
+You may wish to commit files or directories that are ignored globally or in the source repository (e.g., bower_compontents), or make file inclusion and exclusion the responsibility of the build process alone.
+
+In order to scope gitignore rules to the build directory only, create a file named 'gitignore' in your source directory: 
+
+```
+# Unignore everything
+!**/*
+
+# Re-ignore things
+...your ignore rules here
+```
+
+Then copy it to the build directory during yor build process as '.gitignore'.
+
+#### Notes
 
 `buildcontrol` will add commits on top of the existing history of the remote branch if available.
 
