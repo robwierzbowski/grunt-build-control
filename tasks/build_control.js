@@ -225,7 +225,8 @@ module.exports = function (grunt) {
 
       // Stage and commit
       grunt.log.subhead('Committing changes to ' + options.branch + '.');
-      execWrap('git add -A . && git commit -m "' + message + '"');
+      execWrap('git add -A .');
+      execWrap('git commit -m "' + message + '"');
     }
 
     // TODO: Implement tag option
@@ -255,7 +256,6 @@ module.exports = function (grunt) {
 
       // Tasks for pushing and committing
       gitFetch();
-
       initBranch();
 
       if (shouldUpdate()) {
@@ -263,6 +263,7 @@ module.exports = function (grunt) {
       }
 
       safeCheckout();
+      gitReset();
 
       if (options.commit) {
         gitCommit();
