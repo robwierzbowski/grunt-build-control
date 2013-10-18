@@ -255,7 +255,6 @@ module.exports = function (grunt) {
 
       // Tasks for pushing and committing
       gitFetch();
-      gitReset();
 
       initBranch();
 
