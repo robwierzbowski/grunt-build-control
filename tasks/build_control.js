@@ -25,7 +25,8 @@ module.exports = function (grunt) {
       // tag: false,
       push: false,
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
-      connectCommits: true
+      connectCommits: true,
+      allFiles: true
     });
 
     var tokens = {
@@ -212,13 +213,18 @@ module.exports = function (grunt) {
 
     // Stage and commit to a branch
     function gitCommit () {
+      var flags = '';
       var message = options.message
         .replace(/%sourceName%/g, tokens.name)
         .replace(/%sourceCommit%/g, tokens.commit)
         .replace(/%sourceBranch%/g, tokens.branch);
 
+      if (options.allFiles) {
+        flags = flags + ' -f';
+      }
+
       // If there are no changes, skip commit
-      if (shelljs.exec('git status --porcelain', {silent: true}).output === '') {
+      if (shelljs.exec('git status --porcelain' + flags, {silent: true}).output === '') {
         grunt.log.subhead('No changes to your branch. Skipping commit.');
         return;
       }

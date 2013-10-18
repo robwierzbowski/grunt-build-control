@@ -91,6 +91,13 @@ Default: `true`
 
 Make sure that every commit on the built code branch matches a commit on the main project branch. If the main project's working directory has uncommitted changes, a commit task will throw an error.
 
+#### allFiles
+
+Type: `Boolean`  
+Default: `true`  
+
+Adds all files in the build directory regardless of .gitignore settings. You may wish to ignore files and directories globally or in the source repository but add them to the build (e.g., bower_compontents). `allFiles` force adds all files, and makes exclusion the responsibility of the build process.
+
 ### Usage
 
 A common use of grunt-build-control is to commit and push built code to the GitHub pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku. 
