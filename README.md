@@ -188,7 +188,7 @@ Post bugs and feature requests to the [Github issue tracker](https://github.com/
 
 ## Release History
 
-- 2013-10-X v0.0.0
+- 2013-10-19 v0.1.1: Stable initial release.
 
 ## License
 
