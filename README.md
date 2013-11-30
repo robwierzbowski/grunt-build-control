@@ -188,6 +188,7 @@ Post bugs and feature requests to the [Github issue tracker](https://github.com/
 
 ## Release History
 
+- 2013-11-29 v0.1.2: Add defaults for all properties.
 - 2013-10-19 v0.1.1: Stable initial release.
 
 ## License
