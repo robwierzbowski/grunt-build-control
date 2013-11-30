@@ -21,6 +21,9 @@ module.exports = function (grunt) {
     var remoteName = null;
 
     var options = this.options({
+      branch: 'dist',
+      dir: 'dist',
+      remote: '../',
       commit: false,
       // tag: false,
       push: false,
@@ -55,13 +58,6 @@ module.exports = function (grunt) {
 
     // Check requirements
     function checkRequirements () {
-      // Check that required options are set.
-      ['branch', 'dir', 'remote'].forEach( function (element) {
-        if (!options.hasOwnProperty(element)) {
-          throw('The "' + element + '" option is required.');
-        }
-      });
-
       // Check that the build directory exists
       if (!fs.existsSync(options.dir)) {
         throw('Build directory "' + options.dir + '" doesn\'t exist. Nothing to version.');

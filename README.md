@@ -37,21 +37,21 @@ Add the build directory to the main project's .gitignore, and make sure the buil
 #### dir
 
 Type: `String`  
-Default: *Required*  
+Default: `dist`  
 
 The directory that contains your built code.
 
 #### branch
 
 Type: `String`  
-Default: *Required*  
+Default: `dist`  
 
 The branch to commit to.
 
 #### remote
 
 Type: `String`  
-Default: *Required*  
+Default: `../`  
 
 The remote to push to. Common examples include a distribution repository (Heroku or Scalr), your main project's remote (gh-pages branch on Github), or the local project repository itself (`../`).
 
