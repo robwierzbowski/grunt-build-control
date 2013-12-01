@@ -195,3 +195,7 @@ Post bugs and feature requests to the [Github issue tracker](https://github.com/
 
 [MIT](http://en.wikipedia.org/wiki/MIT_License)
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/robwierzbowski/grunt-build-control/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
