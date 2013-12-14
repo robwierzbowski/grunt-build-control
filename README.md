@@ -160,15 +160,17 @@ Then copy it to the build directory during yor build process as '.gitignore'.
 
 #### Notes
 
+Grunt-build-control deploys to git endpoints. To set up a git endpoint on a private server, search "deploying a website with git" and follow one of the many tutorials available.
+
 `buildcontrol` will add commits on top of the existing history of the remote branch if available.
 
 `buildcontrol` is a synchronous task, and fetches from your remote before each commit or push. Depending on the location of your remote, the size of commits, and network speed it can be a long running task.
 
 It's best to run `buildcontrol` manually after your build process or as the last step in a build and deploy task.
 
-If a git conflict occurs you must manually resolve it inside the built code directory.
+If a git conflict occurs (usually because another user has force-pushed to the deployment server) delete the built code directory and run build and build control again.
 
-Don't check out built code branches while in the main project directory. Differences in untracked files can cause issues.
+Don't check out built code branches while in the main project directory. Differences in untracked files will cause issues.
 
 <!-- 
 ## Todo:
