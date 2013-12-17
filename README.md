@@ -160,7 +160,7 @@ Then copy it to the build directory during yor build process as '.gitignore'.
 
 #### Notes
 
-Grunt-build-control deploys to git endpoints. To set up a git endpoint on a private server, search "deploying a website with git" and follow one of the many tutorials available.
+Grunt-build-control deploys to git endpoints. If you want to deploy to a private server [this tutorial by @curtisblackwell ](http://curtisblackwell.com/blog/my-deploy-method-brings-most-of-the-boys-to-the-yard) is a good place to start.
 
 `buildcontrol` will add commits on top of the existing history of the remote branch if available.
 
