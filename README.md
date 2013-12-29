@@ -148,7 +148,7 @@ You may wish to commit files or directories that are ignored globally or in the 
 
 In order to scope gitignore rules to the build directory only, create a file named 'gitignore' in your source directory: 
 
-```
+```shell
 # Unignore everything
 !**/*
 
