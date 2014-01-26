@@ -25,7 +25,7 @@ module.exports = function (grunt) {
       dir: 'dist',
       remote: '../',
       commit: false,
-      // tag: false,
+      tag: false,
       push: false,
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
       connectCommits: true
@@ -219,21 +219,33 @@ module.exports = function (grunt) {
         return;
       }
 
-      // Stage and commit
       grunt.log.subhead('Committing changes to ' + options.branch + '.');
       execWrap('git add -A .');
       execWrap('git commit -m "' + message + '"');
     }
 
-    // TODO: Implement tag option
-    // Pronounced "gihttag"
-    // function gitTag () {
-    // }
+    // Tag local branch
+    function gitTag () {
+      // If the tag exists, skip tagging
+      if (shelljs.exec('git rev-parse --revs-only ' + options.tag, {silent: true}).output !== '') {
+        grunt.log.subhead('The tag "' + options.tag + '" already exists. Skipping tagging.');
+        return;
+      }
+
+      grunt.log.subhead('Tagging the local repository with ' + options.tag);
+      execWrap('git tag ' + options.tag);
+    }
 
     // Push branch to remote
     function gitPush () {
       grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
       execWrap('git push ' + remoteName + ' ' + options.branch);
+    }
+
+    // Push tags to remote
+    function gitPushTags () {
+      grunt.log.subhead('Pushing tag "' + options.tag + '" to ' + options.remote);
+      execWrap('git push ' + remoteName + ' ' + options.tag);
     }
 
     // Run task
@@ -265,12 +277,16 @@ module.exports = function (grunt) {
         gitCommit();
       }
 
-      // if (options.tag) {
-      //   gitCommit();
-      // }
+      if (options.tag) {
+        gitTag();
+      }
 
       if (options.push) {
         gitPush();
+
+        if (options.tag) {
+          gitPushTags();
+        }
       }
     }
     catch (e) {

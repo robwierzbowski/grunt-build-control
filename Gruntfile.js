@@ -9,6 +9,8 @@
 'use strict';
 
 module.exports = function(grunt) {
+  var pkg = require('./package.json');
+
   // Project configuration.
   grunt.initConfig({
     jshint: {
@@ -38,7 +40,8 @@ module.exports = function(grunt) {
           remote: '../',
           commit: true,
           push: true,
-          connectCommits: false
+          connectCommits: false,
+          tag: pkg.version
         }
       },
       production: {
