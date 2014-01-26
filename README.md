@@ -62,14 +62,19 @@ Default: `false`
 
 Commits built code to `branch`. A new commit is only created if the built code has changed.
 
-<!-- #### tag -->
+#### tag
+
+Type: `Boolean` or `String`  
+Default: `false`  
+
+If set to a string, adds its value as a lightweight git tag to the local built repo. Try loading your project's package.json as a variable and tagging with `pkg.version`.
 
 #### push
 
 Type: `Boolean`  
 Default: `false`  
 
-Pushes `branch` to `remote`.
+Pushes `branch` to `remote`. If `tag` is set, pushes the specified tag as well.
 
 #### message
 
@@ -98,6 +103,7 @@ A common use of grunt-build-control is to commit and push built code to the GitH
 ```js
 // Project configuration.
 grunt.initConfig({
+  var pkg = require('./package.json');
   
   // Various Grunt tasks...
 
@@ -117,7 +123,8 @@ grunt.initConfig({
     heroku: {
       options: {
         remote: 'git@heroku.com:example-heroku-webapp-1988.git',
-        branch: 'master'
+        branch: 'master',
+        tag: pkg.version
       }
     },
     local: {
@@ -138,7 +145,7 @@ In this example a user is working on a Yeoman-based web app, with their project'
 
 Running `grunt buildcontrol:pages` commits the built code to the gh-pages branch of the 'dist/.git' repository and pushes to the gh-pages branch of `git@github.com:example_user/example_webapp.git`. 
 
-Running `grunt buildcontrol:heroku` will commit the built code to the master branch of the 'dist/.git' repository and push to the master branch of `git@heroku.com:example-heroku-webapp-1988.git`.
+Running `grunt buildcontrol:heroku` will commit the built code to the master branch of the 'dist/.git' repository, tag the latest commit in 'dist/.git' with the value of `pkg.version` if the tag doesn't already exist, and push refs and tags to the master branch of `git@heroku.com:example-heroku-webapp-1988.git`.
 
 Running `grunt buildcontrol:local` will commit the built code to the build branch of the 'dist/.git' repository and push to the build branch of the local source code repository. The local project repository can then be synced with a remote.
 
@@ -175,7 +182,6 @@ Don't check out built code branches while in the main project directory. Differe
 <!-- 
 ## Todo:
 
-- add tag option
 - replace as many porcelain commands as possible with plumbing.
 - describe or list similar projects with limitations?  
   https://npmjs.org/package/grunt-github-pages  
