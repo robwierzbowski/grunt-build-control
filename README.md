@@ -2,6 +2,10 @@
 
 > Version control built code.
 
+### HELP WRITE TESTS FOR THIS TASK
+
+For continued development, this library needs test coverage. If you like writing tests and like this Grunt task, please take a look at [issue #19](https://github.com/robwierzbowski/grunt-build-control/issues/19) and consider helping with a pull request. Any assistance is appreciated.
+
 ## Getting started
 
 This plugin requires [Grunt](http://gruntjs.com/) `~0.4.0` and [Git](http://git-scm.com/) `> 1.8`.
