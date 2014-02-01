@@ -58,9 +58,14 @@ module.exports = function (grunt) {
 
     // Check requirements
     function checkRequirements () {
-      // Check that the build directory exists
+      // Check that build directory exists
       if (!fs.existsSync(options.dir)) {
         throw('Build directory "' + options.dir + '" doesn\'t exist. Nothing to version.');
+      }
+
+      // Check that build directory conteins files
+      if (fs.readdirSync(options.dir).length === 0) {
+        throw('Build directory "' + options.dir + '" is empty. Nothing to version.');
       }
 
       // If connectCommits is true check that the main project's working
