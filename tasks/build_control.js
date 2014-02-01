@@ -129,8 +129,9 @@ module.exports = function (grunt) {
         behind = status.output.indexOf('behind') === -1 ? false : true;
 
         if (ahead && behind) {
-          throw('The remote and local branches have diverged. Please \n' +
-            'resolve manually before attempting again.');
+          throw('The remote and local branches have diverged; please\n' +
+            'resolve manually. Deleting the local **built code**\n' +
+            '.git directory will usually fix things up.');
         }
         else if (ahead) {
           return false;
@@ -215,7 +216,7 @@ module.exports = function (grunt) {
     // Run task
     try {
 
-      // Prepare tasks
+      // Prepare
       checkRequirements();
       assignTokens();
 
