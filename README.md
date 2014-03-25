@@ -106,9 +106,10 @@ A common use of grunt-build-control is to commit and push built code to the GitH
 
 ```js
 // Project configuration.
+var pkg = require('./package.json');
+
 grunt.initConfig({
-  var pkg = require('./package.json');
-  
+
   // Various Grunt tasks...
 
   buildcontrol: {
