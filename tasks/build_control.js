@@ -34,7 +34,8 @@ module.exports = function (grunt) {
     var tokens = {
       branch: '(unavailable)',
       commit: '(unavailable)',
-      name:   '(unavailable)'
+      name:   '(unavailable)',
+      priorCommit: '(unavailable)'
     };
 
     var localBranchExists;
@@ -84,12 +85,16 @@ module.exports = function (grunt) {
     function assignTokens () {
       var sourceBranch = shelljs.exec('git symbolic-ref --quiet HEAD', {silent: true});
       var sourceCommit = shelljs.exec('git rev-parse --short HEAD', {silent: true});
+      var sourcePriorCommit = shelljs.exec('git rev-parse --short HEAD~1', {silent: true});
 
       if (sourceBranch.code === 0) {
         tokens.branch = sourceBranch.output.split('/').pop().replace(/\n/g, '');
       }
       if (sourceCommit.code === 0) {
         tokens.commit = sourceCommit.output.replace(/\n/g, '');
+      }
+      if (sourcePriorCommit.code === 0) {
+        tokens.priorCommit = sourcePriorCommit.output.replace(/\n/g, '');
       }
       if (shelljs.test('-f', 'package.json', {silent: true})) {
         tokens.name = JSON.parse(fs.readFileSync('package.json', 'utf8')).name;
@@ -178,6 +183,7 @@ module.exports = function (grunt) {
       var message = options.message
         .replace(/%sourceName%/g, tokens.name)
         .replace(/%sourceCommit%/g, tokens.commit)
+        .replace(/%sourcePriorCommit%/g, tokens.priorCommit)
         .replace(/%sourceBranch%/g, tokens.branch);
 
       // If there are no changes, skip commit
