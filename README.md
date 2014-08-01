@@ -106,9 +106,10 @@ A common use of grunt-build-control is to commit and push built code to the GitH
 
 ```js
 // Project configuration.
+var pkg = require('./package.json');
+
 grunt.initConfig({
-  var pkg = require('./package.json');
-  
+
   // Various Grunt tasks...
 
   buildcontrol: {
@@ -167,7 +168,7 @@ In order to scope gitignore rules to the build directory only, create a file nam
 ...your ignore rules here
 ```
 
-Then copy it to the build directory during yor build process as '.gitignore'.
+Then copy it to the build directory during your build process as '.gitignore'.
 
 #### Notes
 
