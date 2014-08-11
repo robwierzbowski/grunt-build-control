@@ -37,7 +37,7 @@ module.exports = function(grunt) {
       testbranch: {
         options: {
           branch: 'test-branch',
-          remote: '../',
+          remote: '../../test-cloud-repo',
           commit: true,
           push: true,
           connectCommits: false,
