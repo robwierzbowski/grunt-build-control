@@ -188,7 +188,14 @@ module.exports = function (grunt) {
 
       grunt.log.subhead('Committing changes to ' + options.branch + '.');
       execWrap('git add -A .');
-      execWrap('git commit -m "' + message + '"');
+
+      // generate commit message
+      var commitFile = 'commitFile-' + crypto.createHash('md5').update(message).digest('hex').substring(0, 6);
+      fs.writeFileSync(commitFile, message);
+
+      execWrap('git commit --file=' + commitFile);
+
+      fs.unlinkSync(commitFile);
     }
 
     // Tag local branch
