@@ -45,10 +45,17 @@ module.exports = function (grunt) {
     // output and error handling
     // Args:
     // - command: the shell command
-    // - verbose: show output on the cli, defaults to true
-    function execWrap(command, verbose) {
-      var shellResult = shelljs.exec(command, {silent: true});
+    // - verbose: show output on the cli after execution, defaults to true
+    // - stream: stream the command, defaults to false
+    function execWrap(command, verbose, stream) {
       verbose = typeof verbose === 'undefined' ? true : verbose;
+      stream = typeof stream === 'undefined' ? false: stream;
+
+      if (stream) {
+        verbose = false;
+      }
+
+      var shellResult = shelljs.exec(command, {silent: (!stream)});
 
       if (shellResult.code === 0) {
         if (verbose) {
@@ -76,8 +83,8 @@ module.exports = function (grunt) {
       // directory is clean
       if (options.connectCommits && shelljs.exec('git diff', {silent: true}).output !== '') {
         throw ('There are uncommitted changes in your working directory. \n' +
-          'Please commit changes to the main project before you commit to \n' +
-          'the built code.\n');
+               'Please commit changes to the main project before you commit to \n' +
+               'the built code.\n');
       }
     }
 
@@ -135,8 +142,8 @@ module.exports = function (grunt) {
 
         if (ahead && behind) {
           throw('The remote and local branches have diverged; please\n' +
-            'resolve manually. Deleting the local **built code**\n' +
-            '.git directory will usually fix things up.');
+                'resolve manually. Deleting the local **built code**\n' +
+                '.git directory will usually fix things up.');
         }
         else if (ahead) {
           return false;
@@ -219,7 +226,7 @@ module.exports = function (grunt) {
     // Push branch to remote
     function gitPush () {
       grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
-      execWrap('git push ' + remoteName + ' ' + options.branch);
+      execWrap('git push ' + remoteName + ' ' + options.branch, false, true);
 
       if (options.tag) {
         execWrap('git push ' + remoteName + ' ' + options.tag);
