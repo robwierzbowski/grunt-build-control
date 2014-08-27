@@ -25,6 +25,7 @@ module.exports = function (grunt) {
       dir: 'dist',
       remote: '../',
       commit: false,
+      allowEmpty: false,
       tag: false,
       push: false,
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
@@ -194,7 +195,7 @@ module.exports = function (grunt) {
         .replace(/%sourceBranch%/g, tokens.branch);
 
       // If there are no changes, skip commit
-      if (shelljs.exec('git status --porcelain', {silent: true}).output === '') {
+      if (!options.allowEmpty && shelljs.exec('git status --porcelain', {silent: true}).output === '') {
         grunt.log.subhead('No changes to your branch. Skipping commit.');
         return;
       }
@@ -206,7 +207,7 @@ module.exports = function (grunt) {
       var commitFile = 'commitFile-' + crypto.createHash('md5').update(message).digest('hex').substring(0, 6);
       fs.writeFileSync(commitFile, message);
 
-      execWrap('git commit --file=' + commitFile);
+      execWrap('git commit --allow-empty --file=' + commitFile);
 
       fs.unlinkSync(commitFile);
     }
@@ -247,7 +248,7 @@ module.exports = function (grunt) {
       initGit();
 
       remoteName = options.remote;
-      
+
       // Regex to test for remote url
       var remoteUrlRegex = new RegExp('.+[\\/:].+');
       if(remoteUrlRegex.test(remoteName)) {
