@@ -25,6 +25,7 @@ module.exports = function (grunt) {
       dir: 'dist',
       remote: '../',
       commit: false,
+      allowEmpty: false,
       tag: false,
       push: false,
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
@@ -181,14 +182,14 @@ module.exports = function (grunt) {
         .replace(/%sourceBranch%/g, tokens.branch);
 
       // If there are no changes, skip commit
-      if (shelljs.exec('git status --porcelain', {silent: true}).output === '') {
+      if (!options.allowEmpty && shelljs.exec('git status --porcelain', {silent: true}).output === '') {
         grunt.log.subhead('No changes to your branch. Skipping commit.');
         return;
       }
 
       grunt.log.subhead('Committing changes to ' + options.branch + '.');
       execWrap('git add -A .');
-      execWrap('git commit -m "' + message + '"');
+      execWrap('git commit --allow-empty -m "' + message + '"');
     }
 
     // Tag local branch
