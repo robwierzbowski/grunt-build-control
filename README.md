@@ -22,6 +22,12 @@ After the plugin has been installed, load it in your Gruntfile with:
 grunt.loadNpmTasks('grunt-build-control');
 ```
 
+or, as is often the case with [Yeoman](http://yeoman.io) generators, your Gruntfile will already load plugins automatically with:
+ 
+```js
+require('load-grunt-tasks')(grunt);
+```
+
 ## buildcontrol task
 
 _Run this task with the `grunt buildcontrol` command._
