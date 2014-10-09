@@ -34,16 +34,6 @@ module.exports = function(grunt) {
       options: {
         dir: 'dist',
       },
-      testbranch: {
-        options: {
-          branch: 'test-branch',
-          remote: '../',
-          commit: true,
-          push: true,
-          connectCommits: false,
-          tag: pkg.version
-        }
-      },
       production: {
         options: {
           branch: 'prod',
