@@ -2,6 +2,10 @@
 
 > Version control built code.
 
+## Deprecated
+
+I won't be working on this any more. If you find this code useful feel free to ping me and I'll hand the repo over to you.
+
 ### HELP WRITE TESTS FOR THIS TASK
 
 For continued development, this library needs test coverage. If you like writing tests and like this Grunt task, please take a look at [issue #19](https://github.com/robwierzbowski/grunt-build-control/issues/19) and consider helping with a pull request. Any assistance is appreciated.
