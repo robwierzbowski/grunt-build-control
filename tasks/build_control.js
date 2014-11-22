@@ -232,7 +232,14 @@ module.exports = function (grunt) {
 
       // Set up repository
       initGit();
-      initRemote();
+
+      remoteName = options.remote;
+      
+      // Regex to test for remote url
+      var remoteUrlRegex = new RegExp('.+[\\/:].+');
+      if(remoteUrlRegex.test(remoteName)) {
+        initRemote();
+      }
 
       // Set up local branch
       localBranchExists = shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch, {silent: true}).code === 0;
