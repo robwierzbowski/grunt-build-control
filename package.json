@@ -1,7 +1,7 @@
 {
   "name": "grunt-build-control",
   "description": "Automate version control tasks for your project's built code. Keep built code in sync with source code, maintain multiple branches of built code, commit with automatic messages, and push to remote repositories.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "homepage": "https://github.com/robwierzbowski/grunt-build-control",
   "author": "Rob Wierzbowski <hello@robwierzbowski.com> (http://robwierzbowski)",
   "repository": {
