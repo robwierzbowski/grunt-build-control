@@ -6,9 +6,11 @@ var path = require('path');
 var fs = require('fs-extra');
 var async = require('async');
 var childProcess = require('child_process');
-var gruntExec = 'node ' + path.resolve('node_modules/grunt-cli/bin/grunt');
-
 var should = require('chai').should();
+
+
+var GRUNT_EXEC = 'node ' + path.resolve('node_modules/grunt-cli/bin/grunt');
+
 
 
 /**
@@ -42,9 +44,9 @@ var execScenario = function(cb) {
 
 	tasks.push(function executeGruntCommand(next) {
 		//options
-		gruntExec += ' --no-color';
+		GRUNT_EXEC += ' --no-color';
 
-		childProcess.exec(gruntExec, {cwd: mockRepoDir}, function(err, stdout, stderr) {
+		childProcess.exec(GRUNT_EXEC, {cwd: mockRepoDir}, function(err, stdout, stderr) {
 			next(err, {stdout: stdout, stderr: stderr});
 		});
 	});
@@ -99,8 +101,12 @@ describe('buildcontrol', function() {
 
 
 	it('basic deployment', function(done) {
+		// the working directory is `test/mock-repo`.
 		var tasks = [];
 
+		/**
+		 * Test case specific setup
+		 */
 		// make `mock-repo` a actual repository
 		tasks.push(function git_init(next) {
 			childProcess.exec('git init', next);
@@ -114,12 +120,22 @@ describe('buildcontrol', function() {
 			childProcess.exec('git commit -m "basic deployment"', next);
 		});
 
-		tasks.push(function verify_file_exists(next) {
+		/**
+		 * Execute scenario
+		 */
+		tasks.push(function execute_scenario(next) {
 			execScenario(function(err) {
 				should.not.exist(err);
-				fs.existsSync('verify/empty_file').should.be.true;
 				next();
 			});
+		});
+
+		/**
+		 * Should style validations
+		 */
+		tasks.push(function verify_file_exists(next) {
+			fs.existsSync('verify/empty_file').should.be.true;
+			next();
 		});
 
 		tasks.push(function verify_commit_message(next) {
@@ -149,7 +165,6 @@ describe('buildcontrol', function() {
 
 	it('simple deploy', function(done) {
 		var tasks = [];
-
 
 		tasks.push(function(next) {
 			execScenario(function() {
