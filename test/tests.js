@@ -194,4 +194,20 @@ describe('buildcontrol', function() {
 		async.series(tasks, done);
 	});
 
+
+	it('secure endpoint', function(done) {
+		var tasks = [];
+
+		tasks.push(function(next) {
+			execScenario(function(err, results) {
+        results.stdout.should.not.have.string('privateUsername');
+        results.stdout.should.not.have.string('1234567890abcdef');
+        results.stdout.should.have.string('<CREDENTIALS>');
+        next();
+      });
+		});
+
+		async.series(tasks, done);
+	});
+
 });

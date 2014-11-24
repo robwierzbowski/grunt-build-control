@@ -23,7 +23,7 @@ grunt.loadNpmTasks('grunt-build-control');
 ```
 
 or, as is often the case with [Yeoman](http://yeoman.io) generators, your Gruntfile will already load plugins automatically with:
- 
+
 ```js
 require('load-grunt-tasks')(grunt);
 ```
@@ -32,7 +32,7 @@ require('load-grunt-tasks')(grunt);
 
 _Run this task with the `grunt buildcontrol` command._
 
-Automate version control tasks for your project's built code. 
+Automate version control tasks for your project's built code.
 
 Keep built code in sync with source code, maintain multiple branches of built code, commit with automatic messages, and push to remote repositories.
 
@@ -44,50 +44,68 @@ Add the build directory to the main project's .gitignore, and make sure the buil
 
 ### Options
 
-#### dir
 
+#### dir
 Type: `String`  
 Default: `dist`  
 
 The directory that contains your built code.
 
-#### branch
 
+#### branch
 Type: `String`  
 Default: `dist`  
 
 The branch to commit to.
 
-#### remote
 
+#### remote
 Type: `String`  
 Default: `../`  
 
 The remote to push to. Common examples include a distribution repository (Heroku or Scalr), your main project's remote (gh-pages branch on Github), or the local project repository itself (`../`).
 
-#### commit
 
+#### login
+Type: `String`
+Default: `''`
+
+Optional, but provide in conjunction with `token`.  
+The `remote` will be formatted to include the token and login.  
+ex: `https://login@github.com/user/repo.git`
+
+
+#### token
+Type: `String`
+Default: `''`
+
+Optional, but provide in conjunction with `login`.  
+The `remote` will be formatted to include the token and login.  
+ex: `https://login:token@github.com/user/repo.git`
+
+
+#### commit
 Type: `Boolean`  
 Default: `false`  
 
 Commits built code to `branch`. A new commit is only created if the built code has changed.
 
-#### tag
 
+#### tag
 Type: `Boolean` or `String`  
 Default: `false`  
 
 If set to a string, adds its value as a lightweight git tag to the local built repo. Try loading your project's package.json as a variable and tagging with `pkg.version`.
 
-#### push
 
+#### push
 Type: `Boolean`  
 Default: `false`  
 
 Pushes `branch` to `remote`. If `tag` is set, pushes the specified tag as well.
 
-#### message
 
+#### message
 Type: `String`  
 Default: `Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%  `
 
@@ -99,8 +117,8 @@ You can use the following tokens to print information about the main project:
 - `%sourceBranch%`: The main project's current branch
 - `%sourceCommit%`: The main project's most recent commit
 
-#### connectCommits
 
+#### connectCommits
 Type: `Boolean`  
 Default: `true`  
 
@@ -108,7 +126,7 @@ Make sure that every commit on the built code branch matches a commit on the mai
 
 ### Usage
 
-A common use of grunt-build-control is to commit and push built code to the GitHub pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku. 
+A common use of grunt-build-control is to commit and push built code to the GitHub pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku.
 
 ```js
 // Project configuration.
@@ -152,9 +170,9 @@ grunt.registerTask('build', [
 ]);
 ```
 
-In this example a user is working on a Yeoman-based web app, with their project's source code hosted at `git@github.com:example_user/example_webapp.git`. To deploy they first run `grunt build` to build a minified, optimized version of their app into the 'dist' directory. 
+In this example a user is working on a Yeoman-based web app, with their project's source code hosted at `git@github.com:example_user/example_webapp.git`. To deploy they first run `grunt build` to build a minified, optimized version of their app into the 'dist' directory.
 
-Running `grunt buildcontrol:pages` commits the built code to the gh-pages branch of the 'dist/.git' repository and pushes to the gh-pages branch of `git@github.com:example_user/example_webapp.git`. 
+Running `grunt buildcontrol:pages` commits the built code to the gh-pages branch of the 'dist/.git' repository and pushes to the gh-pages branch of `git@github.com:example_user/example_webapp.git`.
 
 Running `grunt buildcontrol:heroku` will commit the built code to the master branch of the 'dist/.git' repository, tag the latest commit in 'dist/.git' with the value of `pkg.version` if the tag doesn't already exist, and push refs and tags to the master branch of `git@heroku.com:example-heroku-webapp-1988.git`.
 
@@ -164,7 +182,7 @@ Running `grunt buildcontrol:local` will commit the built code to the build branc
 
 You may wish to commit files or directories that are ignored globally or in the source repository (e.g., bower_compontents), or make file inclusion and exclusion the responsibility of the build process alone.
 
-In order to scope gitignore rules to the build directory only, create a file named 'gitignore' in your source directory: 
+In order to scope gitignore rules to the build directory only, create a file named 'gitignore' in your source directory:
 
 ```shell
 # Unignore everything
@@ -190,7 +208,7 @@ If a git conflict occurs (usually because another user has force-pushed to the d
 
 Don't check out built code branches while in the main project directory. Differences in untracked files will cause issues.
 
-<!-- 
+<!--
 ## Todo:
 
 - replace as many porcelain commands as possible with plumbing.
@@ -200,7 +218,7 @@ Don't check out built code branches while in the main project directory. Differe
   https://npmjs.org/package/grunt-git-selective-deploy  
 
 -->
- 
+
 ## Contribute
 
 Post bugs and feature requests to the [Github issue tracker](https://github.com/robwierzbowski/grunt-build-control/issues). In lieu of a formal styleguide, take care to maintain the existing coding style. Lint and test your code using [Grunt](https://github.com/gruntjs/grunt).
@@ -217,4 +235,3 @@ Post bugs and feature requests to the [Github issue tracker](https://github.com/
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/robwierzbowski/grunt-build-control/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
