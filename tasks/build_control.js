@@ -13,6 +13,7 @@ module.exports = function (grunt) {
   var path = require('path');
   var crypto = require('crypto');
   var shelljs = require('shelljs');
+  var url = require('url');
 
   grunt.registerMultiTask('buildcontrol', 'Version control built code.', function() {
 
@@ -24,6 +25,8 @@ module.exports = function (grunt) {
       branch: 'dist',
       dir: 'dist',
       remote: '../',
+      login: '',
+      token: '',
       commit: false,
       tag: false,
       push: false,
@@ -40,6 +43,32 @@ module.exports = function (grunt) {
     var localBranchExists;
     var remoteBranchExists;
 
+    // Build remote if sensitive information is passed in
+    if (options.login && options.token) {
+      var remote = url.parse(options.remote);
+
+      options.remote = url.format({
+        protocol: remote.protocol,
+        auth: options.login + ':' + options.token,
+        host: remote.host,
+        path: remote.path
+      });
+    }
+
+
+    function maskSensitive(str) {
+      return str
+        .replace(options.login + ':' + options.token, '<CREDENTIALS>', 'gm')
+        .replace(options.token, '<TOKEN>', 'gmi');
+    }
+
+    var log = {};
+    log.fail = {};
+    log.subhead = function(msg) {grunt.log.subhead(maskSensitive(msg));};
+    log.write = function(msg) {grunt.log.write(maskSensitive(msg));};
+    log.fail.warn = function(msg) {grunt.fail.warn(maskSensitive(msg));};
+
+
     // Wraps shellJs calls that act on the file structure to give better Grunt
     // output and error handling
     // Args:
@@ -54,15 +83,19 @@ module.exports = function (grunt) {
         verbose = false;
       }
 
+      if (options.login && options.token) {
+        stream = false;
+      }
+
       var shellResult = shelljs.exec(command, {silent: (!stream)});
 
       if (shellResult.code === 0) {
         if (verbose) {
-          grunt.log.write(shellResult.output);
+          log.write(shellResult.output);
         }
       }
       else {
-        throw shellResult.output;
+        throw maskSensitive(shellResult.output);
       }
     }
 
@@ -109,7 +142,7 @@ module.exports = function (grunt) {
     // Initialize git repo if one doesn't exist
     function initGit () {
       if (!fs.existsSync(path.join(gruntDir, options.dir, '.git'))) {
-        grunt.log.subhead('Creating git repository in ' + options.dir + '.');
+        log.subhead('Creating git repository in ' + options.dir + '.');
 
         execWrap('git init');
       }
@@ -120,7 +153,7 @@ module.exports = function (grunt) {
       remoteName = "remote-" + crypto.createHash('md5').update(options.remote).digest('hex').substring(0, 6);
 
       if (shelljs.exec('git remote', {silent: true}).output.indexOf(remoteName) === -1) {
-        grunt.log.subhead('Creating remote.');
+        log.subhead('Creating remote.');
         execWrap('git remote add ' + remoteName + ' ' + options.remote);
       }
     }
@@ -152,7 +185,7 @@ module.exports = function (grunt) {
     // Fetch remote refs to a specific branch, equivalent to a pull without
     // checkout
     function safeUpdate () {
-      grunt.log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
+      log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
 
       // `--update-head-ok` allows fetch on a branch with uncommited changes
       execWrap('git fetch --verbose --update-head-ok ' + remoteName + ' ' + options.branch + ':' + options.branch);
@@ -189,11 +222,11 @@ module.exports = function (grunt) {
 
       // If there are no changes, skip commit
       if (shelljs.exec('git status --porcelain', {silent: true}).output === '') {
-        grunt.log.subhead('No changes to your branch. Skipping commit.');
+        log.subhead('No changes to your branch. Skipping commit.');
         return;
       }
 
-      grunt.log.subhead('Committing changes to ' + options.branch + '.');
+      log.subhead('Committing changes to ' + options.branch + '.');
       execWrap('git add -A .');
 
       // generate commit message
@@ -209,17 +242,17 @@ module.exports = function (grunt) {
     function gitTag () {
       // If the tag exists, skip tagging
       if (shelljs.exec('git rev-parse --revs-only ' + options.tag, {silent: true}).output !== '') {
-        grunt.log.subhead('The tag "' + options.tag + '" already exists. Skipping tagging.');
+        log.subhead('The tag "' + options.tag + '" already exists. Skipping tagging.');
         return;
       }
 
-      grunt.log.subhead('Tagging the local repository with ' + options.tag);
+      log.subhead('Tagging the local repository with ' + options.tag);
       execWrap('git tag ' + options.tag);
     }
 
     // Push branch to remote
     function gitPush () {
-      grunt.log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
+      log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
       execWrap('git push ' + remoteName + ' ' + options.branch, false, true);
 
       if (options.tag) {
@@ -241,7 +274,7 @@ module.exports = function (grunt) {
       initGit();
 
       remoteName = options.remote;
-      
+
       // Regex to test for remote url
       var remoteUrlRegex = new RegExp('.+[\\/:].+');
       if(remoteUrlRegex.test(remoteName)) {
@@ -271,7 +304,7 @@ module.exports = function (grunt) {
       }
       else if (!remoteBranchExists && !localBranchExists) {
         // Create local branch
-        grunt.log.subhead('Creating branch "' + options.branch + '".');
+        log.subhead('Creating branch "' + options.branch + '".');
         execWrap('git checkout --orphan ' + options.branch);
       }
 
@@ -292,7 +325,7 @@ module.exports = function (grunt) {
       }
     }
     catch (e) {
-      grunt.fail.warn(e);
+      log.fail.warn(e);
       done(false);
     }
     finally {
