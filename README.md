@@ -65,8 +65,26 @@ Default: `../`
 
 The remote to push to. Common examples include a distribution repository (Heroku or Scalr), your main project's remote (gh-pages branch on Github), or the local project repository itself (`../`).
 
-#### commit
 
+#### login
+Type: `String`
+Default: `''`
+
+Optional, but provide in conjunction with `token`.  
+The `remote` will be formatted to include the token and login.  
+ex: `https://login@github.com/user/repo.git`
+
+
+#### token
+Type: `String`
+Default: `''`
+
+Optional, but provide in conjunction with `login`.  
+The `remote` will be formatted to include the token and login.  
+ex: `https://login:token@github.com/user/repo.git`
+
+
+#### commit
 Type: `Boolean`  
 Default: `false`  
 
