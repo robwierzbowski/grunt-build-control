@@ -51,7 +51,7 @@ module.exports = function (grunt) {
         protocol: remote.protocol,
         auth: options.login + ':' + options.token,
         host: remote.host,
-        path: remote.path
+        pathname: remote.pathname
       });
     }
 

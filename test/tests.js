@@ -195,17 +195,25 @@ describe('buildcontrol', function() {
 	});
 
 
-	it('secure endpoint', function(done) {
+  it('secure endpoint', function(done) {
 		var tasks = [];
 
 		tasks.push(function(next) {
 			execScenario(function(err, results) {
         results.stdout.should.not.have.string('privateUsername');
         results.stdout.should.not.have.string('1234567890abcdef');
+        results.stdout.should.have.string('github.com/pubUsername/temp.git');
         results.stdout.should.have.string('<CREDENTIALS>');
         next();
       });
 		});
+
+    tasks.push(function(next) {
+      childProcess.exec('git remote -v', {cwd: 'dist'}, function(err, stdout) {
+        stdout.should.have.string('https://privateUsername:1234567890abcdef@github.com/pubUsername/temp.git');
+        next();
+      });
+    });
 
 		async.series(tasks, done);
 	});
