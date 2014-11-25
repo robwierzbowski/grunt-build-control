@@ -62,26 +62,26 @@ module.exports = function (grunt) {
         .replace(options.token, '<TOKEN>', 'gmi');
     }
 
-    var log = {};
-    log.fail = {};
-    log.subhead = function(msg) {grunt.log.subhead(maskSensitive(msg));};
-    log.write = function(msg) {grunt.log.write(maskSensitive(msg));};
-    log.fail.warn = function(msg) {grunt.fail.warn(maskSensitive(msg));};
+      var log = {};
+      log.fail = {};
+      log.subhead = function(msg) {grunt.log.subhead(maskSensitive(msg));};
+      log.write = function(msg) {grunt.log.write(maskSensitive(msg));};
+      log.fail.warn = function(msg) {grunt.fail.warn(maskSensitive(msg));};
 
 
-    // Wraps shellJs calls that act on the file structure to give better Grunt
-    // output and error handling
-    // Args:
-    // - command: the shell command
-    // - verbose: show output on the cli after execution, defaults to true
-    // - stream: stream the command, defaults to false
-    function execWrap(command, verbose, stream) {
-      verbose = typeof verbose === 'undefined' ? true : verbose;
-      stream = typeof stream === 'undefined' ? false: stream;
+      // Wraps shellJs calls that act on the file structure to give better Grunt
+      // output and error handling
+      // Args:
+      // - command: the shell command
+      // - verbose: show output on the cli after execution, defaults to true
+      // - stream: stream the command, defaults to false
+      function execWrap(command, verbose, stream) {
+        verbose = typeof verbose === 'undefined' ? true : verbose;
+        stream = typeof stream === 'undefined' ? false: stream;
 
-      if (stream) {
-        verbose = false;
-      }
+        if (stream) {
+          verbose = false;
+        }
 
       if (options.login && options.token) {
         stream = false;
