@@ -257,4 +257,82 @@ describe('buildcontrol', function() {
 
   });
 
+
+  describe('untracked branch in src repo', function() {
+    it('should track a branch in ../ if it was untracked', function(done) {
+      var tasks = [];
+
+      tasks.push(function(next) {
+        fs.removeSync('repo');
+        childProcess.exec('git clone remote repo', next);
+      });
+
+
+      tasks.push(function(next) {
+        fs.ensureDirSync('repo/build');
+        fs.writeFileSync('repo/build/hello.txt', 'hello world!');
+        next();
+      });
+
+      //tasks.push(function(next) { childProcess.exec('git branch --track build origin/build', {cwd: 'repo'}, next); });
+
+      tasks.push(function(next) {
+        execScenario(function(err, stdout) {
+          next(err);
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git checkout build', {cwd: 'repo'}, function(err, stdout) {
+          next();
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git log', {cwd: 'repo'}, function(err, stdout) {
+          stdout.should.have.string('a build commit');
+          next();
+        });
+      });
+
+      async.series(tasks, done);
+    });
+
+
+    it('should not set tracking info it branch already exists', function(done) {
+      var tasks = [];
+
+      tasks.push(function(next) {
+        fs.removeSync('repo');
+        childProcess.exec('git clone remote repo', next);
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git branch build', {cwd: 'repo'}, next);
+      });
+
+      tasks.push(function(next) {
+        fs.ensureDirSync('repo/build');
+        fs.writeFileSync('repo/build/hello.txt', 'hello world!');
+        next();
+      });
+
+      tasks.push(function(next) {
+        execScenario(function(err, stdout) {
+          next(err);
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git branch -lvv', {cwd: 'repo'}, function(err, stdout) {
+          stdout.should.not.have.string('origin/build');
+          next();
+        });
+      });
+
+      async.series(tasks, done);
+    });
+
+  });
+
 });
