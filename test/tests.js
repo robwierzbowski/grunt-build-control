@@ -85,7 +85,7 @@ var execScenario = function(cb) {
  *    - each tests' current working directory has been set to `test/mock`
  */
 describe('buildcontrol', function() {
-  this.timeout(3500);
+  this.timeout(6000);
 
 
   beforeEach(function(done) {
@@ -175,7 +175,7 @@ describe('buildcontrol', function() {
 
   describe('merge multiple repos', function() {
     it('merge multiple repos', function(done) {
-      execScenario(function(err, results) {
+      execScenario(function(err, stdout, stderr) {
         should.not.exist(err);
         var numberFile = fs.readFileSync('validate/numbers.txt', {encoding: 'utf8'});
         numberFile.should.be.eql('0 1 2\n');
@@ -434,4 +434,88 @@ describe('buildcontrol', function() {
 
   });
 
+
+  describe('push diff branches', function() {
+    it('should push local:stage to stage:master and local:prod to prod:master', function(done) {
+      var tasks = [];
+
+      tasks.push(function(next) {
+        execScenario(function(err, stdout) {
+          fs.removeSync('validate');  // not needed because there's two diff remotes
+          next(err);
+        });
+      });
+
+      tasks.push(function(next) {
+        fs.removeSync('stage_validate');
+        childProcess.exec('git clone stage_remote stage_validate', next);
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'stage_validate'}, function(err, stdout) {
+          stdout.should.have.string('first stage commit');
+          stdout.should.have.string('new stage commit');
+          next();
+        });
+      });
+
+
+      tasks.push(function(next) {
+        fs.removeSync('prod_validate');
+        childProcess.exec('git clone prod_remote prod_validate', next);
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'prod_validate'}, function(err, stdout) {
+          stdout.should.have.string('first prod commit');
+          stdout.should.have.string('new prod commit');
+          next();
+        });
+      });
+
+      async.series(tasks, done);
+    });
+
+
+    it('should do it multiple times', function(done) {
+      var tasks = [];
+
+      tasks.push(function(next) {
+        execScenario(next);
+      });
+
+      tasks.push(function(next) {
+        fs.writeFileSync('repo/dist/empty_file', 'file not empty anymore');
+        next();
+      });
+
+      tasks.push(function(next) {
+        execScenario(next);
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git clone stage_remote stage_validate', next);
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'stage_validate'}, function(err, stdout) {
+          stdout.match(/new stage commit/g).should.be.length(2);
+          next();
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git clone prod_remote prod_validate', next);
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'prod_validate'}, function(err, stdout) {
+          stdout.match(/new prod commit/g).should.be.length(2);
+          next();
+        });
+      });
+
+      async.series(tasks, done);
+    });
+  });
 });
