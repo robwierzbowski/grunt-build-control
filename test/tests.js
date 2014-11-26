@@ -154,6 +154,9 @@ describe('buildcontrol', function() {
       async.series(tasks, done);
     });
 
+
+
+
   });
 
 
@@ -200,6 +203,15 @@ describe('buildcontrol', function() {
       });
 
       async.series(tasks, done);
+    });
+
+
+    it('should not have <TOKEN> in the message', function(done) {
+      execScenario(function(err, result) {
+        should.not.exist(err);
+        result.stdout.should.not.have.string('<TOKEN>');
+        done();
+      });
     });
 
   });

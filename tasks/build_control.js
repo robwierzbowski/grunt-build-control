@@ -57,6 +57,8 @@ module.exports = function (grunt) {
 
 
     function maskSensitive(str) {
+      if (!options.token) return str;
+
       return str
         .replace(options.login + ':' + options.token, '<CREDENTIALS>', 'gm')
         .replace(options.token, '<TOKEN>', 'gmi');
