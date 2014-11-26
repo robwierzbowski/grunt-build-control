@@ -25,6 +25,7 @@ module.exports = function (grunt) {
       branch: 'dist',
       dir: 'dist',
       remote: '../',
+      remoteBranch: '',
       login: '',
       token: '',
       commit: false,
@@ -263,8 +264,11 @@ module.exports = function (grunt) {
 
     // Push branch to remote
     function gitPush () {
+      var branch = options.branch;
+      if (options.remoteBranch) branch += ':' + options.remoteBranch;
+
       log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
-      execWrap('git push ' + remoteName + ' ' + options.branch, false, true);
+      execWrap('git push ' + remoteName + ' ' + branch, false, true);
 
       if (options.tag) {
         execWrap('git push ' + remoteName + ' ' + options.tag);
@@ -295,7 +299,7 @@ module.exports = function (grunt) {
 
       // Set up local branch
       localBranchExists = shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch, {silent: true}).code === 0;
-      remoteBranchExists = shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.branch, {silent: true}).code === 0;
+      remoteBranchExists = shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.remoteBranch || options.branch, {silent: true}).code === 0;
 
       if (remoteBranchExists) {
         gitFetch();
@@ -312,7 +316,7 @@ module.exports = function (grunt) {
       }
       else if (remoteBranchExists && !localBranchExists) { //// TEST THIS ONE
         // Create local branch that tracks remote
-        execWrap('git branch --track ' + options.branch  + ' ' + remoteName + '/' + options.branch);
+        execWrap('git branch --track ' + options.branch + ' ' + remoteName + '/' + (options.remoteBranch || options.branch));
       }
       else if (!remoteBranchExists && !localBranchExists) {
         // Create local branch
