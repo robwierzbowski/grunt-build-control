@@ -67,7 +67,7 @@ var execScenario = function(cb) {
 
   async.series(tasks, function returnCallbackStatus(err, results) {
     // return results from executeGruntCommand
-    cb(err, results[1]);
+    cb(err, results[1].stdout, results[1].stderr);
   });
 };
 
@@ -208,9 +208,9 @@ describe('buildcontrol', function() {
 
 
     it('should not have <TOKEN> in the message', function(done) {
-      execScenario(function(err, result) {
+      execScenario(function(err, stdout) {
         should.not.exist(err);
-        result.stdout.should.not.have.string('<TOKEN>');
+        stdout.should.not.have.string('<TOKEN>');
         done();
       });
     });
@@ -223,11 +223,11 @@ describe('buildcontrol', function() {
       var tasks = [];
 
       tasks.push(function(next) {
-        execScenario(function(err, results) {
-          results.stdout.should.not.have.string('privateUsername');
-          results.stdout.should.not.have.string('1234567890abcdef');
-          results.stdout.should.have.string('github.com/pubUsername/temp.git');
-          results.stdout.should.have.string('<CREDENTIALS>');
+        execScenario(function(err, stdout) {
+          stdout.should.not.have.string('privateUsername');
+          stdout.should.not.have.string('1234567890abcdef');
+          stdout.should.have.string('github.com/pubUsername/temp.git');
+          stdout.should.have.string('<CREDENTIALS>');
           next();
         });
       });
