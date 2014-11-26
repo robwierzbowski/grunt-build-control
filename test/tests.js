@@ -84,7 +84,7 @@ var execScenario = function(cb) {
  *    - each tests' current working directory has been set to `test/mock`
  */
 describe('buildcontrol', function() {
-  this.timeout(10000);
+  this.timeout(3500);
 
 
   beforeEach(function(done) {
