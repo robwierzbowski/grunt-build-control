@@ -66,6 +66,14 @@ Default: `../`
 The remote to push to. Common examples include a distribution repository (Heroku or Scalr), your main project's remote (gh-pages branch on Github), or the local project repository itself (`../`).
 
 
+#### remoteBranch
+Type: `String`
+Default: `''`
+
+The remote branch to push to. Common usage would be for Heroku's `master` branch
+requirement.
+
+
 #### login
 Type: `String`
 Default: `''`
