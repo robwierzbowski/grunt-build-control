@@ -31,6 +31,16 @@ module.exports = function(grunt) {
       ]
     },
 
+    watch: {
+      tests: {
+        files: ['tasks/**/*', 'test/**/*', '!**/test/mock/**'],
+        tasks: 'test',
+        options: {
+          atBegin: true
+        }
+      }
+    },
+
     // Configuration to be run (and then tested).
     buildcontrol: {
       options: {
@@ -55,12 +65,15 @@ module.exports = function(grunt) {
     }
   });
 
+
+
   // Actually load this plugin's task(s).
   grunt.loadTasks('tasks');
 
   // These plugins provide necessary tasks.
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-nodeunit');
   grunt.loadNpmTasks('grunt-mocha-test');
 
