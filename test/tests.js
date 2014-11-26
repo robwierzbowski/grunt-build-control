@@ -72,10 +72,11 @@ var execScenario = function(cb) {
 /**
  * Tests
  *
- * Each test is using the perspective as a "user", take a look at the "basic deploy" test.
+ * Each test is using the perspective as a "user", take a look at the "basic deploy" suite.
+ *
+ * `describe` suite's title should have the same name as the scenario folder.
  *
  * Assumptions:
- *    - test name MUST MATCH scenario folder name
  *    - each tests' current working directory has been set to `test/mock-repo`
  */
 describe('buildcontrol', function() {
@@ -91,7 +92,7 @@ describe('buildcontrol', function() {
     fs.ensureDirSync('mock-repo');
 
     // copy scenario to `test/mock-repo`
-    fs.copySync('scenarios/' + this.currentTest.title, 'mock-repo');
+    fs.copySync('scenarios/' + this.currentTest.parent.title, 'mock-repo');
 
     // ensure all tests are are using the working directory: `test/mock-repo`
     process.chdir('mock-repo');
@@ -100,122 +101,147 @@ describe('buildcontrol', function() {
 
 
 
-  it('basic deployment', function(done) {
-    // the working directory is `test/mock-repo`.
-    var tasks = [];
+  describe('basic deployment', function() {
+    it('should have pushed a file and had the correct commit in "verify" repo', function(done) {
+      // the working directory is `test/mock-repo`.
+      var tasks = [];
 
-    /**
-     * Test case specific setup
-     */
-      // make `mock-repo` a actual repository
-    tasks.push(function git_init(next) {
-      childProcess.exec('git init', next);
-    });
-
-    tasks.push(function git_add(next) {
-      childProcess.exec('git add .', next);
-    });
-
-    tasks.push(function git_commit(next) {
-      childProcess.exec('git commit -m "basic deployment"', next);
-    });
-
-    /**
-     * Execute scenario
-     */
-    tasks.push(function execute_scenario(next) {
-      execScenario(function(err) {
-        should.not.exist(err);
-        next();
+      /**
+       * Test case specific setup
+       */
+        // make `mock-repo` a actual repository
+      tasks.push(function git_init(next) {
+        childProcess.exec('git init', next);
       });
-    });
 
-    /**
-     * Should style validations
-     */
-    tasks.push(function verify_file_exists(next) {
-      fs.existsSync('verify/empty_file').should.be.true;
-      next();
-    });
+      tasks.push(function git_add(next) {
+        childProcess.exec('git add .', next);
+      });
 
-    tasks.push(function verify_commit_message(next) {
-      childProcess.exec('git rev-parse HEAD', function(err, sha) {
-        sha = sha.substr(0, 7);
+      tasks.push(function git_commit(next) {
+        childProcess.exec('git commit -m "basic deployment"', next);
+      });
 
-        childProcess.exec('git log --pretty=oneline --no-color', {cwd: 'verify'}, function(err, stdout) {
-          stdout.should.have.string('from commit ' + sha);
+      /**
+       * Execute scenario
+       */
+      tasks.push(function execute_scenario(next) {
+        execScenario(function(err) {
+          should.not.exist(err);
           next();
         });
       });
-    });
 
-    async.series(tasks, done);
-  });
-
-
-  it('merge multiple repos', function(done) {
-    execScenario(function(err, results) {
-      should.not.exist(err);
-      var numberFile = fs.readFileSync('verify/numbers.txt', {encoding: 'utf8'});
-      numberFile.should.be.eql('0 1 2\n');
-      done();
-    });
-  });
-
-
-  it('simple deploy', function(done) {
-    var tasks = [];
-
-    tasks.push(function(next) {
-      execScenario(function() {
-        var numberFile = fs.readFileSync('verify/numbers.txt', {encoding: 'utf8'});
-        numberFile.should.be.eql('1 2 3 4\n');
+      /**
+       * Should style validations
+       */
+      tasks.push(function verify_file_exists(next) {
+        fs.existsSync('verify/empty_file').should.be.true;
         next();
       });
+
+      tasks.push(function verify_commit_message(next) {
+        childProcess.exec('git rev-parse HEAD', function(err, sha) {
+          sha = sha.substr(0, 7);
+
+          childProcess.exec('git log --pretty=oneline --no-color', {cwd: 'verify'}, function(err, stdout) {
+            stdout.should.have.string('from commit ' + sha);
+            next();
+          });
+        });
+      });
+
+      async.series(tasks, done);
     });
 
-    tasks.push(function(next) {
-      fs.writeFileSync('dist/numbers.txt', '100 200');
+  });
 
+
+  describe('merge multiple repos', function() {
+    it('merge multiple repos', function(done) {
       execScenario(function(err, results) {
+        should.not.exist(err);
         var numberFile = fs.readFileSync('verify/numbers.txt', {encoding: 'utf8'});
-        numberFile.should.be.eql('100 200');
-        next();
+        numberFile.should.be.eql('0 1 2\n');
+        done();
       });
     });
 
-    tasks.push(function(next) {
-      childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'verify'}, function(err, stdout) {
-        stdout.match(/simple deploy commit message/g).length.should.be.eql(2);
-        next();
-      });
-    });
-
-    async.series(tasks, done);
   });
 
 
-  it('secure endpoint', function(done) {
-    var tasks = [];
+  describe('simple deploy', function() {
+    it('should deploy multiple times with the correct commit message', function(done) {
+      var tasks = [];
 
-    tasks.push(function(next) {
-      execScenario(function(err, results) {
-        results.stdout.should.not.have.string('privateUsername');
-        results.stdout.should.not.have.string('1234567890abcdef');
-        results.stdout.should.have.string('github.com/pubUsername/temp.git');
-        results.stdout.should.have.string('<CREDENTIALS>');
-        next();
+      tasks.push(function(next) {
+        execScenario(function() {
+          var numberFile = fs.readFileSync('verify/numbers.txt', {encoding: 'utf8'});
+          numberFile.should.be.eql('1 2 3 4\n');
+          next();
+        });
       });
+
+      tasks.push(function(next) {
+        fs.writeFileSync('dist/numbers.txt', '100 200');
+
+        execScenario(function(err, results) {
+          var numberFile = fs.readFileSync('verify/numbers.txt', {encoding: 'utf8'});
+          numberFile.should.be.eql('100 200');
+          next();
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'verify'}, function(err, stdout) {
+          stdout.should.have.string('simple deploy commit message');
+          next();
+        });
+      });
+
+      async.series(tasks, done);
     });
 
-    tasks.push(function(next) {
-      childProcess.exec('git remote -v', {cwd: 'dist'}, function(err, stdout) {
-        stdout.should.have.string('https://privateUsername:1234567890abcdef@github.com/pubUsername/temp.git');
-        next();
+  });
+
+
+  describe('secure endpoint', function() {
+    it('should not log out secure information', function(done) {
+      var tasks = [];
+
+      tasks.push(function(next) {
+        execScenario(function(err, results) {
+          results.stdout.should.not.have.string('privateUsername');
+          results.stdout.should.not.have.string('1234567890abcdef');
+          results.stdout.should.have.string('github.com/pubUsername/temp.git');
+          results.stdout.should.have.string('<CREDENTIALS>');
+          next();
+        });
       });
+
+      async.series(tasks, done);
     });
 
-    async.series(tasks, done);
+
+    it('should have the correct remote url in git', function(done) {
+      var tasks = [];
+
+      tasks.push(function(next) {
+        execScenario(function() {
+          next();
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git remote -v', {cwd: 'dist'}, function(err, stdout) {
+          stdout.should.have.string('https://privateUsername:1234567890abcdef@github.com/pubUsername/temp.git');
+          next();
+        });
+      });
+
+      async.series(tasks, done);
+    });
+
   });
 
 });
