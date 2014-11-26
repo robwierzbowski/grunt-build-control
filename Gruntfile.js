@@ -27,7 +27,7 @@ module.exports = function(grunt) {
     // Before generating any new files, remove any previously-created files.
     clean: {
       tests: [
-      'test/mock-repo'
+      'test/mock'
       ]
     },
 

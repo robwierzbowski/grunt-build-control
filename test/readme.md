@@ -10,20 +10,21 @@ grunt test
 ```
 test/
     tests.js        - contains tests to be executed
-    mock-repo/      - [auto gen] testing area for any given scenario
+    mock/      		- [auto gen] testing area for any given scenario
+    	repo/		- repository to do tests on
         remote/     - [auto gen] "remote", imagine it as a github repo
-        verify/     - [auto gen] `git clone remote verify` produces this folder
+        validate/   - [auto gen] `git clone remote validate` produces this folder
     scenarios/      - different scenarios to be executed
         exampleA/
         ...
 ```
 
 #### Notes
-All tests are executed with the relative path being: `test/mock-repo/`
+All tests are executed with the relative path being: `test/mock/`
 
 A quick little helper to watch and rerun tests (requires `npm install nodemon -g`)
 ```bash
-nodemon -w test -w tasks/ -i test/mock-repo --exec 'grunt test'
+nodemon -w test -w tasks/ -i test/mock --exec 'grunt test'
 ```
 
 
@@ -41,16 +42,16 @@ Deploy code is in "dist/*"
 grunt-build-control tasks is located in "gruntfile.js"
 
 The test case can be found in "/test/tests.js", high level is:
-	- it purges `mock-repo/`
-	- it copies `scenarios/basic deployment/**` to `mock-repo/`
-	- it changes working directory to `mock-repo/`
+	- it purges `mock/`
+	- it copies `scenarios/basic deployment/**` to `mock/`
+	- it changes working directory to `mock/`
 	- it executes the test case named `basic deployment`
 
 The "basic deployment" test case does the following:
 	- it does setup
 	- it runs execScenario()
 		- which executes `grunt default`
-		- which executes `git clone remote verify`
+		- which executes `git clone remote validate`
 	- it does validations
 ```
 

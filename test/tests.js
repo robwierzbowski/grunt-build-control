@@ -16,18 +16,22 @@ var GRUNT_EXEC = 'node ' + path.resolve('node_modules/grunt-cli/bin/grunt');
 /**
  * Executes a Scenario given by tests.
  *
- * - A scenario has a `gruntfile.js` configuration.
- * - Each build task will upload to a mock repo (folder name is `remote`)
- * - It then clones the remote to `verify`. Validations can be done in the `verify` folder
+ * A Scenario can contain:
+ *    repo - the folder to contain the repository
+ *    repo/gruntfile.js - the gruntfile to be tested
+ *    remote - (optional) can contain a setup cloud repository
+ *    validate - (will be overwritten) it is cloned from remote (used to validate a push)
  *
+ **
  * NOTE: this function DOES change the process's working directory to the `scenario` so that
  * validations are easier access.
  */
 var execScenario = function(cb) {
-  var mockRepoDir = path.normalize(__dirname + '/mock-repo');
+  var mockRepoDir = path.normalize(__dirname + '/mock');
 
+  var distDir = path.join(mockRepoDir, 'repo');
   var remoteDir = path.join(mockRepoDir, 'remote');
-  var verifyDir = path.join(mockRepoDir, 'verify');
+  var verifyDir = path.join(mockRepoDir, 'validate');
 
 
   var tasks = [];
@@ -46,7 +50,7 @@ var execScenario = function(cb) {
     //options
     GRUNT_EXEC += ' --no-color';
 
-    childProcess.exec(GRUNT_EXEC, {cwd: mockRepoDir}, function(err, stdout, stderr) {
+    childProcess.exec(GRUNT_EXEC, {cwd: distDir}, function(err, stdout, stderr) {
       next(err, {stdout: stdout, stderr: stderr});
     });
   });
@@ -54,7 +58,7 @@ var execScenario = function(cb) {
 
   tasks.push(function createVerifyFromRemote(next) {
     fs.removeSync(verifyDir); // since we're cloning from `remote/` we'll just remove the folder if it exists
-    childProcess.exec('git clone remote verify', {cwd: mockRepoDir}, function(err) {
+    childProcess.exec('git clone remote validate', {cwd: mockRepoDir}, function(err) {
       if (err) throw new Error(err);
       next(err);
     });
@@ -77,7 +81,7 @@ var execScenario = function(cb) {
  * `describe` suite's title should have the same name as the scenario folder.
  *
  * Assumptions:
- *    - each tests' current working directory has been set to `test/mock-repo`
+ *    - each tests' current working directory has been set to `test/mock`
  */
 describe('buildcontrol', function() {
   this.timeout(10000);
@@ -87,15 +91,15 @@ describe('buildcontrol', function() {
     // ensure that we reset to `test/` dir
     process.chdir(__dirname);
 
-    // clean testing folder `test/mock-repo`
-    fs.removeSync('mock-repo');
-    fs.ensureDirSync('mock-repo');
+    // clean testing folder `test/mock`
+    fs.removeSync('mock');
+    fs.ensureDirSync('mock');
 
-    // copy scenario to `test/mock-repo`
-    fs.copySync('scenarios/' + this.currentTest.parent.title, 'mock-repo');
+    // copy scenario to `test/mock`
+    fs.copySync('scenarios/' + this.currentTest.parent.title, 'mock');
 
-    // ensure all tests are are using the working directory: `test/mock-repo`
-    process.chdir('mock-repo');
+    // ensure all tests are are using the working directory: `test/mock`
+    process.chdir('mock');
     done();
   });
 
@@ -103,13 +107,13 @@ describe('buildcontrol', function() {
 
   describe('basic deployment', function() {
     it('should have pushed a file and had the correct commit in "verify" repo', function(done) {
-      // the working directory is `test/mock-repo`.
+      // the working directory is `test/mock`.
       var tasks = [];
 
       /**
        * Test case specific setup
        */
-        // make `mock-repo` a actual repository
+        // make `mock` a actual repository
       tasks.push(function git_init(next) {
         childProcess.exec('git init', next);
       });
@@ -136,7 +140,7 @@ describe('buildcontrol', function() {
        * Should style validations
        */
       tasks.push(function verify_file_exists(next) {
-        fs.existsSync('verify/empty_file').should.be.true;
+        fs.existsSync('validate/empty_file').should.be.true;
         next();
       });
 
@@ -144,7 +148,7 @@ describe('buildcontrol', function() {
         childProcess.exec('git rev-parse HEAD', function(err, sha) {
           sha = sha.substr(0, 7);
 
-          childProcess.exec('git log --pretty=oneline --no-color', {cwd: 'verify'}, function(err, stdout) {
+          childProcess.exec('git log --pretty=oneline --no-color', {cwd: 'validate'}, function(err, stdout) {
             stdout.should.have.string('from commit ' + sha);
             next();
           });
@@ -154,9 +158,6 @@ describe('buildcontrol', function() {
       async.series(tasks, done);
     });
 
-
-
-
   });
 
 
@@ -164,7 +165,7 @@ describe('buildcontrol', function() {
     it('merge multiple repos', function(done) {
       execScenario(function(err, results) {
         should.not.exist(err);
-        var numberFile = fs.readFileSync('verify/numbers.txt', {encoding: 'utf8'});
+        var numberFile = fs.readFileSync('validate/numbers.txt', {encoding: 'utf8'});
         numberFile.should.be.eql('0 1 2\n');
         done();
       });
@@ -179,24 +180,24 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         execScenario(function() {
-          var numberFile = fs.readFileSync('verify/numbers.txt', {encoding: 'utf8'});
+          var numberFile = fs.readFileSync('validate/numbers.txt', {encoding: 'utf8'});
           numberFile.should.be.eql('1 2 3 4\n');
           next();
         });
       });
 
       tasks.push(function(next) {
-        fs.writeFileSync('dist/numbers.txt', '100 200');
+        fs.writeFileSync('repo/dist/numbers.txt', '100 200');
 
         execScenario(function(err, results) {
-          var numberFile = fs.readFileSync('verify/numbers.txt', {encoding: 'utf8'});
+          var numberFile = fs.readFileSync('validate/numbers.txt', {encoding: 'utf8'});
           numberFile.should.be.eql('100 200');
           next();
         });
       });
 
       tasks.push(function(next) {
-        childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'verify'}, function(err, stdout) {
+        childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'validate'}, function(err, stdout) {
           stdout.should.have.string('simple deploy commit message');
           next();
         });
@@ -245,7 +246,7 @@ describe('buildcontrol', function() {
       });
 
       tasks.push(function(next) {
-        childProcess.exec('git remote -v', {cwd: 'dist'}, function(err, stdout) {
+        childProcess.exec('git remote -v', {cwd: 'repo/dist'}, function(err, stdout) {
           stdout.should.have.string('https://privateUsername:1234567890abcdef@github.com/pubUsername/temp.git');
           next();
         });
