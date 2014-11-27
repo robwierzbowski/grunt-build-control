@@ -141,6 +141,15 @@ module.exports = function (grunt) {
       }
     }
 
+
+    function verifyRepoBranchIsTracked() {
+      // attempt to track a branch from origin
+      // it may fail on times that the branch is already tracking another
+      // remote. There is no problem when that happens, nor does it have any affect
+      shelljs.exec('git branch --track ' + options.branch + ' origin/' + options.branch, {silent: true});
+    }
+
+
     // Initialize git repo if one doesn't exist
     function initGit () {
       if (!fs.existsSync(path.join(gruntDir, options.dir, '.git'))) {
@@ -268,6 +277,7 @@ module.exports = function (grunt) {
       // Prepare
       checkRequirements();
       assignTokens();
+      if (options.remote === '../') verifyRepoBranchIsTracked();
 
       // Change working directory
       shelljs.cd(options.dir);
@@ -278,7 +288,7 @@ module.exports = function (grunt) {
       remoteName = options.remote;
 
       // Regex to test for remote url
-      var remoteUrlRegex = new RegExp('.+[\\/:].+');
+      var remoteUrlRegex = new RegExp('(\.\.\/|.+[\\/:].+)');
       if(remoteUrlRegex.test(remoteName)) {
         initRemote();
       }
