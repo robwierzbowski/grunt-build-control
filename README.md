@@ -61,13 +61,14 @@ The branch to commit to.
 
 #### remote
 Type: `String`  
+Values: `URL|RemoteName|FileSystemPath`  
 Default: `../`  
 
 The remote to push to. Common examples include a distribution repository (Heroku or Scalr), your main project's remote (gh-pages branch on Github), or the local project repository itself (`../`).
 
 
 #### remoteBranch
-Type: `String`
+Type: `String`  
 Default: `''`
 
 The remote branch to push to. Common usage would be for Heroku's `master` branch
@@ -75,7 +76,7 @@ requirement.
 
 
 #### login
-Type: `String`
+Type: `String`  
 Default: `''`
 
 Optional, but provide in conjunction with `token`.  
@@ -84,7 +85,7 @@ ex: `https://login@github.com/user/repo.git`
 
 
 #### token
-Type: `String`
+Type: `String`  
 Default: `''`
 
 Optional, but provide in conjunction with `login`.  
