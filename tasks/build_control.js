@@ -288,7 +288,7 @@ module.exports = function (grunt) {
       remoteName = options.remote;
 
       // Regex to test for remote url
-      var remoteUrlRegex = new RegExp('(\.\.\/|.+[\\/:].+)');
+      var remoteUrlRegex = new RegExp('[\/\\:]');
       if(remoteUrlRegex.test(remoteName)) {
         initRemote();
       }
