@@ -89,6 +89,8 @@ describe('buildcontrol', function() {
 
 
   beforeEach(function(done) {
+    var scenarioPath = this.currentTest.parent.title;
+
     // ensure that we reset to `test/` dir
     process.chdir(__dirname);
 
@@ -96,12 +98,21 @@ describe('buildcontrol', function() {
     fs.removeSync('mock');
     fs.ensureDirSync('mock');
 
+    try {
     // copy scenario to `test/mock`
-    fs.copySync('scenarios/' + this.currentTest.parent.title, 'mock');
+      fs.copySync('scenarios/' + scenarioPath, 'mock');
 
-    // ensure all tests are are using the working directory: `test/mock`
+      // ensure all tests are are using the working directory: `test/mock`
     process.chdir('mock');
-    done();
+
+      done();
+    }
+    catch (err) {
+      if (err && err.code === 'ENOENT')
+        throw new Error('could not find scenario "' + scenarioPath + '" in test/scenarios/');
+
+      throw new Error(err);
+    }
   });
 
 
