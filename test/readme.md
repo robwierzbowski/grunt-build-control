@@ -3,6 +3,10 @@ Tests can be executed by running
 ```bash
 grunt test
 ```
+or 
+```bash
+grunt watch:tests
+```
 
 
 
@@ -21,11 +25,6 @@ test/
 
 #### Notes
 All tests are executed with the relative path being: `test/mock/`
-
-A quick little helper to watch and rerun tests (requires `npm install nodemon -g`)
-```bash
-nodemon -w test -w tasks/ -i test/mock --exec 'grunt test'
-```
 
 
 
