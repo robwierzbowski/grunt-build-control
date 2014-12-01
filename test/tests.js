@@ -7,6 +7,7 @@ var fs = require('fs-extra');
 var async = require('async');
 var childProcess = require('child_process');
 var should = require('chai').should();
+var _ = require('lodash');
 
 
 var GRUNT_EXEC = 'node ' + path.resolve('node_modules/grunt-cli/bin/grunt');
@@ -331,6 +332,93 @@ describe('buildcontrol', function() {
       });
 
       async.series(tasks, done);
+    });
+
+  });
+
+
+  describe('remote urls', function() {
+    function generateRemote(url, cb) {
+      var tasks = [];
+
+      // read template
+      var gruntfile = fs.readFileSync('repo/gruntfile.js', {encoding: 'UTF8'});
+
+      // generate template
+      gruntfile = _.template(gruntfile, {remoteURL: url});
+
+      // write generated gruntfile
+      fs.writeFileSync('repo/gruntfile.js', gruntfile);
+
+      // execute grunt command
+      tasks.push(function(next) {
+        //options
+        GRUNT_EXEC += ' --no-color';
+
+        childProcess.exec(GRUNT_EXEC, {cwd: 'repo'}, function(err, stdout, stderr) {
+          // mask error because remote paths may not exist
+          next(null, {stdout: stdout, stderr: stderr});
+        });
+      });
+
+      // get remote url
+      tasks.push(function(next) {
+        childProcess.exec('git remote -v', {cwd: 'repo/dist'}, function(err, stdout) {
+          next(err, stdout);
+        });
+      });
+
+      // callback
+      async.series(tasks, function(err, results) {
+        cb(err, results[1]);
+      });
+    }
+
+
+    var shouldMatch = [
+      '/path/to/repo.git/',
+      'path/to/repo.git/',
+      '/path/to/repo',
+      //'\\\\path\\\\to\\\\repo',   // assuming works, there's a lot of escaping to be done
+      'path/to/repo',
+      'C:/user/repo',
+      'file:///path/to/repo.git/',
+      'git://git.com/~user/path/to/repo.git/',
+      'http://git.com/path/to/repo.git/',
+      'https://github.com/user/repo',
+      'ssh://user@server/project.git',
+      'user@server:project.git',
+      '../'
+    ];
+
+
+    async.each(shouldMatch, function(url) {
+      it('should have created remote for: ' + url, function(done) {
+        generateRemote(url, function(err, remoteURL) {
+          remoteURL.should.have.string(url);
+          done();
+        });
+      });
+    });
+
+
+    var shouldNotMatch = [
+      'origin',
+      'weird$1+name',
+      'remote_name',
+      'remote_name_extended',
+      'remote-name',
+      'remote.test'
+    ];
+
+    async.each(shouldNotMatch, function(url) {
+      it('should not have created remote for: ' + url, function(done) {
+        generateRemote(url, function(err, remoteURL) {
+          remoteURL.should.not.have.string(url);
+          remoteURL.should.be.empty;
+          done();
+        });
+      });
     });
 
   });
