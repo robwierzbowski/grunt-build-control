@@ -37,7 +37,8 @@
     "grunt-contrib-jshint": "~0.1.1",
     "grunt-contrib-nodeunit": "~0.1.2",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-mocha-test": "^0.12.1"
+    "grunt-mocha-test": "^0.12.1",
+    "lodash": "^2.4.1"
   },
   "peerDependencies": {
     "grunt": "~0.4.1"
