@@ -518,4 +518,32 @@ describe('buildcontrol', function() {
       async.series(tasks, done);
     });
   });
+
+
+  describe('deploy to named remote', function() {
+    it('should have deployed to origin', function(done) {
+      var tasks = [];
+
+      tasks.push(function(next) {
+        childProcess.exec('git init', {cwd: 'repo/dist'}, next);
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git remote add origin ../../remote', {cwd: 'repo/dist'}, next);
+      });
+
+      tasks.push(function(next) {
+        execScenario(next);
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'validate'}, function(err, stdout) {
+          stdout.should.have.string('new grunt-build commit');
+          next();
+        });
+      });
+
+      async.series(tasks, done);
+    });
+  });
 });
