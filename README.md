@@ -80,6 +80,7 @@ Type: `String`
 Default: `''`
 
 Optional, but provide in conjunction with `token`.  
+Output from grunt-build-control will mask the login with `<CREDENTIALS>`.  
 The `remote` will be formatted to include the token and login.  
 ex: `https://login@github.com/user/repo.git`
 
@@ -89,6 +90,7 @@ Type: `String`
 Default: `''`
 
 Optional, but provide in conjunction with `login`.  
+Output from grunt-build-control will mask the token with `<TOKEN>`.  
 The `remote` will be formatted to include the token and login.  
 ex: `https://login:token@github.com/user/repo.git`
 
