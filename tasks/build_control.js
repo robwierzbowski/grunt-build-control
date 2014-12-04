@@ -200,7 +200,7 @@ module.exports = function (grunt) {
       log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
 
       // `--update-head-ok` allows fetch on a branch with uncommited changes
-      execWrap('git fetch --verbose --update-head-ok ' + remoteName + ' ' + options.branch + ':' + options.branch);
+      execWrap('git fetch --progress --verbose --update-head-ok ' + remoteName + ' ' + options.branch + ':' + options.branch, false, true);
     }
 
     // Make the current working tree the branch HEAD without checking out files
@@ -215,7 +215,8 @@ module.exports = function (grunt) {
 
     // Fetch remote refs
     function gitFetch () {
-      execWrap('git fetch ' + remoteName, false);
+      log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
+      execWrap('git fetch --progress --verbose ' + remoteName, false, true);
     }
 
     // Set branch to track remote
