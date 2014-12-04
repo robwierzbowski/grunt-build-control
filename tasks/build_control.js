@@ -300,7 +300,7 @@ module.exports = function (grunt) {
 
       // Set up local branch
       localBranchExists = shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch, {silent: true}).code === 0;
-      remoteBranchExists = shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + options.remoteBranch || options.branch, {silent: true}).code === 0;
+      remoteBranchExists = shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + (options.remoteBranch || options.branch), {silent: true}).code === 0;
 
       if (remoteBranchExists) {
         gitFetch();
