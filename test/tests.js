@@ -478,6 +478,8 @@ describe('buildcontrol', function() {
 
 
     it('should do it multiple times', function(done) {
+      this.timeout(15000);
+
       var tasks = [];
 
       tasks.push(function(next) {
