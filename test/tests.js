@@ -522,23 +522,14 @@ describe('buildcontrol', function() {
   });
 
 
-  describe('git config', function() {
+  describe('git config', function(done) {
     it('should set git config variables properly', function(done) {
-
-      var tasks = [];
-
-      tasks.push(function(next) {
-        execScenario(next);
-      });
-
-      tasks.push(function(next) {
+      execScenario(function() {
         childProcess.exec('git config user.name', {cwd: 'repo/dist'}, function(err, stdout) {
           stdout.should.have.string('John Doe');
           next();
         });
       });
-
-      async.series(tasks, done);
     });
   });
 
