@@ -522,6 +522,27 @@ describe('buildcontrol', function() {
   });
 
 
+  describe('git config', function() {
+    it('should set git config variables properly', function(done) {
+
+      var tasks = [];
+
+      tasks.push(function(next) {
+        execScenario(next);
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git config user.name', {cwd: 'repo/dist'}, function(err, stdout) {
+          stdout.should.have.string('John Doe');
+          next();
+        });
+      });
+
+      async.series(tasks, done);
+    });
+  });
+
+
   describe('deploy to named remote', function() {
     it('should have deployed to origin', function(done) {
       var tasks = [];

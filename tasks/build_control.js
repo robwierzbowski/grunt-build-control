@@ -32,7 +32,8 @@ module.exports = function (grunt) {
       tag: false,
       push: false,
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
-      connectCommits: true
+      connectCommits: true,
+      config: {}
     });
 
     var tokens = {
@@ -159,6 +160,16 @@ module.exports = function (grunt) {
         execWrap('git init');
       }
     }
+
+
+    // Initialize the git config
+    function initConfig() {
+      console.log(options.config);
+      for (key in options.config) {
+        shelljs.exec('git config ' + key + ' ' + options.config[key]);
+      }
+    }
+
 
     // Create a named remote if one doesn't exist
     function initRemote () {
@@ -289,6 +300,7 @@ module.exports = function (grunt) {
 
       // Set up repository
       initGit();
+      initConfig();
 
       remoteName = options.remote;
 

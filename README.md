@@ -135,6 +135,15 @@ Default: `true`
 
 Make sure that every commit on the built code branch matches a commit on the main project branch. If the main project's working directory has uncommitted changes, a commit task will throw an error.
 
+
+#### config
+Type: `Array`
+Default: `{}`
+
+Optional array of [git config](http://git-scm.com/docs/git-config) repository
+options to set when preparing the repository.
+
+
 ### Usage
 
 A common use of grunt-build-control is to commit and push built code to the GitHub pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku.
