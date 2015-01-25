@@ -11,7 +11,9 @@ module.exports = function (grunt) {
         config: {
           "user.name": "John Doe",
           "user.email": "johndoe@example.com"
-        }
+        },
+        remote: '../../remote',
+        connectCommits: false
       },
       deploy: {
         options: {
