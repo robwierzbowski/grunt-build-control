@@ -26,6 +26,10 @@ test/
 #### Notes
 All tests are executed with the relative path being: `test/mock/`
 
+The filesystem remote path is `../../remote`
+
+Set `connectCommits: false` if there's no need to track the source repo, i.e. an extra call to `git init` the folder `repo/`
+
 
 
 # Usage Example/Workflow
