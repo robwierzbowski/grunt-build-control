@@ -8,23 +8,25 @@ module.exports = function (grunt) {
   grunt.initConfig({
     buildcontrol: {
       options: {
-        dir: 'dist'
+        dir: 'dist',
+        config: {
+          "user.name": "John Doe",
+          "user.email": "johndoe@example.com"
+        },
+        remote: '../../remote',
+        connectCommits: false
       },
       deploy: {
         options: {
           branch: 'master',
           commit: true,
           message: 'git config deploy message',
-          push: true,
-          config: {
-            'user.name': 'John Doe',
-            'user.email': 'johndoe@example.com'
-          }
+          push: true
         }
       }
     }
   });
 
   // default task
-  grunt.registerTask('default', ['buildcontrol']);
+  grunt.registerTask('default', ['buildcontrol:deploy']);
 };

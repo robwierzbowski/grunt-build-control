@@ -164,9 +164,8 @@ module.exports = function (grunt) {
 
     // Initialize the git config
     function initConfig() {
-      for (key in options.config) {
-        throw new Error(key);
-        shelljs.exec('git config ' + key + ' ' + options.config[key]);
+      for (var key in options.config) {
+        shelljs.exec('git config "' + key + '" ' + options.config[key]);
       }
     }
 
