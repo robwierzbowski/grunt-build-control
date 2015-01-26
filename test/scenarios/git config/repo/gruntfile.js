@@ -17,8 +17,8 @@ module.exports = function (grunt) {
           message: 'git config deploy message',
           push: true,
           config: {
-            "user.name": "John Doe",
-            "user.email": "johndoe@example.com"
+            'user.name': 'John Doe',
+            'user.email': 'johndoe@example.com'
           }
         }
       }

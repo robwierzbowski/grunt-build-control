@@ -524,12 +524,27 @@ describe('buildcontrol', function() {
 
   describe('git config', function(done) {
     it('should set git config variables properly', function(done) {
-      execScenario(function() {
-        childProcess.exec('git config user.name', {cwd: 'repo/dist'}, function(err, stdout) {
-          stdout.should.have.string('John Doe');
-          next();
+      var tasks = [];
+
+      tasks.push(function(next) {
+        childProcess.exec('git init', {cwd: 'repo/dist'}, next);
+      });
+
+      tasks.push(function(next) {
+        execScenario(function(err, stdout, stderr) {
+          should.not.exist(err);
+          next(err);
         });
       });
+
+      tasks.push(function(next) {
+        childProcess.exec('git config user.name', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
+          stdout.should.have.string('John Doe');
+          next(err);
+        });
+      });
+
+      async.series(tasks, done);
     });
   });
 
