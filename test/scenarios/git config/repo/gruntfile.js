@@ -1,7 +1,7 @@
 module.exports = function (grunt) {
   // add custom tasks
   // NOTE: cwd is `test/mock`
-  grunt.loadTasks('../../tasks');
+  grunt.loadTasks('../../../tasks');
 
 
   // test config
