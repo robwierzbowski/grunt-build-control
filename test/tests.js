@@ -85,7 +85,7 @@ var execScenario = function(cb) {
  *    - each tests' current working directory has been set to `test/mock`
  */
 describe('buildcontrol', function() {
-  this.timeout(6000);
+  this.timeout(10000);
 
 
   beforeEach(function(done) {
@@ -394,7 +394,8 @@ describe('buildcontrol', function() {
       'path/to/repo',
       'C:/user/repo',
       'file:///path/to/repo.git/',
-      'git://git.com/~user/path/to/repo.git/',
+      'git://github.com:kevinawoo/temp.git',
+      'git@github.com:kevinawoo/temp.git',
       'http://git.com/path/to/repo.git/',
       'https://github.com/user/repo',
       'ssh://user@server/project.git',
