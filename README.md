@@ -137,11 +137,11 @@ Make sure that every commit on the built code branch matches a commit on the mai
 
 
 #### config
-Type: `Array`
-Default: `{}`
+Type: `Object`  
+Default: `{}`  
 
-Optional array of [git config](http://git-scm.com/docs/git-config) repository
-options to set when preparing the repository.
+Optional [git config](http://git-scm.com/docs/git-config) settings for the repository when preparing the repository.  
+ex: `{'user.name': 'John Doe'}`
 
 
 ### Usage
