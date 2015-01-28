@@ -1,4 +1,4 @@
-# grunt-build-control
+# grunt-build-control  [![Build Status](https://travis-ci.org/robwierzbowski/grunt-build-control.svg?branch=master)](https://travis-ci.org/robwierzbowski/grunt-build-control)
 
 > Version control built code.
 
