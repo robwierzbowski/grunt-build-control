@@ -576,4 +576,61 @@ describe('buildcontrol', function() {
       async.series(tasks, done);
     });
   });
+
+
+
+  describe('force push', function() {
+    beforeEach(function(done) {
+      var tasks = [];
+
+      // initialize dist to be a repo and make a commit
+      // this commit is a "bad" commit
+      tasks.push(function(next) {
+        execScenario(next);
+      });
+
+      // we set our dist repo to be one commit behind remote
+      tasks.push(function(next) {
+        childProcess.exec('git reset --hard HEAD^ ', {cwd: 'repo/dist'}, next);
+      });
+
+
+      // now we'll go and diverge.
+      // remember we're 1 behind, 1 ahead
+      tasks.push(function(next) {
+        fs.writeFileSync('repo/dist/numbers.txt', '9 9 9 9');
+        childProcess.exec('git commit -m "number 3 commit" .', {cwd: 'repo/dist'}, next);
+      });
+
+      async.series(tasks, done);
+    });
+
+
+
+    it('should force push', function(done) {
+      var tasks = [];
+
+      // we're now going to push to the remote, since we've commited before
+      // there will be nothing new to commit. This is just a push to remote
+      // however, we're forcing remote to track the dist repo.
+      tasks.push(function(next) {
+        execScenario(function(err, stdout) {
+          next(err);
+        });
+      });
+
+      // the dist repo has 2 commits, namely "number 3 commit"
+      // and it should not have the old commit "commit to be overwritten"
+      tasks.push(function(next) {
+        childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'validate'}, function(err, stdout) {
+          stdout.should.have.string('number 3 commit');
+          stdout.should.not.have.string('commit to be overwritten');
+          next();
+        });
+      });
+
+
+      async.series(tasks, done);
+    });
+  });
 });
