@@ -26,7 +26,7 @@ test/
 #### Notes
 All tests are executed with the relative path being: `test/mock/`
 
-The filesystem remote path is `../../remote`
+The filesystem remote path is usually `../../remote`
 
 Set `connectCommits: false` if there's no need to track the source repo, i.e. an extra call to `git init` the folder `repo/`
 
@@ -44,18 +44,18 @@ Source code is in "/*"
 Deploy code is in "dist/*"
 grunt-build-control tasks is located in "gruntfile.js"
 
-The test case can be found in "/test/tests.js", high level is:
-	- it purges `mock/`
-	- it copies `scenarios/basic deployment/**` to `mock/`
-	- it changes working directory to `mock/`
-	- it executes the test case named `basic deployment`
+The test case can be found in "/test/tests.js", high level test flow:
+	- purge `mock/`
+	- copy `scenarios/basic deployment/**` to `mock/`
+	- change working directory to `mock/`
+	- execute the test case named `basic deployment`
 
 The "basic deployment" test case does the following:
-	- it does setup
-	- it runs execScenario()
+	- setup
+	- runs execScenario()
 		- which executes `grunt default`
 		- which executes `git clone remote validate`
-	- it does validations
+	- does validations
 ```
 
 How does mocha know which scenario folder to copy? By the `describe` suite title of course!
