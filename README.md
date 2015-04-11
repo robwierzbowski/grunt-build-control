@@ -253,7 +253,7 @@ Don't check out built code branches while in the main project directory. Differe
 Post bugs and feature requests to the [Github issue tracker](https://github.com/robwierzbowski/grunt-build-control/issues). In lieu of a formal styleguide, take care to maintain the existing coding style. Lint and test your code using [Grunt](https://github.com/gruntjs/grunt).
 
 ## Release History
-
+[See releases for newer versions](https://github.com/robwierzbowski/grunt-build-control/releases)
 - 2013-11-29 v0.1.2: Add defaults for all properties.
 - 2013-10-19 v0.1.1: Stable initial release.
 
