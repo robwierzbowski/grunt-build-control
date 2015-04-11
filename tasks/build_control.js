@@ -31,6 +31,7 @@ module.exports = function (grunt) {
       commit: false,
       tag: false,
       push: false,
+      force: false,
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
       connectCommits: true,
       config: {}
@@ -182,6 +183,11 @@ module.exports = function (grunt) {
 
     // Check if local branch can safely merge upstream (requires fetched refs)
     function shouldUpdate() {
+      // Make sure you understand what this does.
+      // With force, we're not even going to attempt to check out
+      // We're just going to push the repo and override EVERYTHING in the remote
+      if (options.force === true) return false;
+
       var status = shelljs.exec('git status -sb --porcelain', {silent: true});
       var ahead = false;
       var behind = false;
@@ -276,10 +282,12 @@ module.exports = function (grunt) {
     // Push branch to remote
     function gitPush () {
       var branch = options.branch;
+      var withForce = options.force ? ' --force ' : '';
+
       if (options.remoteBranch) branch += ':' + options.remoteBranch;
 
-      log.subhead('Pushing ' + options.branch + ' to ' + options.remote);
-      execWrap('git push ' + remoteName + ' ' + branch, false, true);
+      log.subhead('Pushing ' + options.branch + ' to ' + options.remote + withForce);
+      execWrap('git push ' + withForce + remoteName + ' ' + branch, false, true);
 
       if (options.tag) {
         execWrap('git push ' + remoteName + ' ' + options.tag);
