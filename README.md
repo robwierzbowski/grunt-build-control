@@ -118,6 +118,13 @@ Default: `false`
 Pushes `branch` to `remote`. If `tag` is set, pushes the specified tag as well.
 
 
+#### force
+Type: `Boolean`  
+Default: `false`  
+
+Pushes `branch` to `remote` with the flag `--force`. This will **NOT** checkout the remote branch, and will **OVERRIDE** `remote` with the repo commits.
+
+
 #### message
 Type: `String`  
 Default: `Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%  `
