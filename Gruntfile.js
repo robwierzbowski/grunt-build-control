@@ -17,7 +17,7 @@ module.exports = function(grunt) {
       all: [
         'Gruntfile.js',
         'tasks/*.js',
-        '<%= nodeunit.tests %>',
+        '<%= nodeunit.tests %>'
       ],
       options: {
         jshintrc: '.jshintrc',
@@ -33,7 +33,14 @@ module.exports = function(grunt) {
 
     watch: {
       tests: {
-        files: ['tasks/**/*', 'test/**/*', '!**/test/mock/**'],
+        files: [
+          'tasks/**/*', 'test/**/*',
+          '!**/test/mock/**',
+
+          // don't watch remote repo files
+          // see https://github.com/gruntjs/grunt-contrib-watch/issues/75#issuecomment-70389741
+          '!test/scenarios/**/{remote,*_remote}/{**/*,*}'
+        ],
         tasks: 'test',
         options: {
           atBegin: true
