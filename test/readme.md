@@ -58,4 +58,16 @@ The "basic deployment" test case does the following:
 	- does validations
 ```
 
-How does mocha know which scenario folder to copy? By the `describe` suite title of course!
+How does mocha know which scenario folder to copy? By the `describe` suite name of course!
+
+
+# Hints and debugging tips
+`tasks.push(_.noop)` is a great way to stop a task flow, and to have a peek around. (Think `debugger;` statement)
+
+I find it helpful to have 3 active terminals windows:
+
+1. **Watcher** - `grunt watch:tests` usually, and executing a single test to make life simplier. Use `describe.only(...)` or `test.only(...)`.
+
+2. **Mock** - terminal pointed to `test/mock/*` to explore what happens during an execution of a test (used in conjuntion wiht `tasks.push(_.noop)`). Note: any folder in mock is removed and recreated on each start of a test. So you'll need to cd back into a folder if your terminal "cannot get current working directory".
+
+3. **Scenario** - terminal pointed to `test/scenario/{scenarioName}/*` for anything that you may need to work on. These are the files that are copied to `test/mock` every single time `grunt watch` runs.
