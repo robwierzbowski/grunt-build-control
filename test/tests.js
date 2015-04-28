@@ -1,5 +1,4 @@
-/*jshint -W030 */
-
+/*jshint -W030, mocha:true */
 'use strict';
 
 var path = require('path');
