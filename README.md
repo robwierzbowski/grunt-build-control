@@ -145,6 +145,13 @@ Default: `true`
 Make sure that every commit on the built code branch matches a commit on the main project branch. If the main project's working directory has uncommitted changes, a commit task will throw an error.
 
 
+#### shallowFetch
+Type: `Boolean`  
+Default: `false`  
+
+Fetches `branch` from `remote` with the flag `--depth=1`. Which makes a shallow clone with a history truncated to the last revision. Might bring some boost on long-history repositories. **Note, you must have [Git](http://git-scm.com/) `> 1.9` to use this option.**
+
+
 #### config
 Type: `Object`  
 Default: `{}`  
