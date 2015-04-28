@@ -169,7 +169,7 @@ module.exports = function (grunt) {
     // Initialize git repo if one doesn't exist
     function initGit () {
       if (!fs.existsSync(path.join(gruntDir, options.dir, '.git'))) {
-        log.subhead('Creating git repository in ' + options.dir + '.');
+        log.subhead('Creating git repository in "' + options.dir + '".');
 
         execWrap('git init');
       }
@@ -225,11 +225,12 @@ module.exports = function (grunt) {
 
     // Fetch remote refs to a specific branch, equivalent to a pull without
     // checkout
-    function safeUpdate () {
+    function gitFetch (dest) {
+      var branch = (options.remoteBranch || options.branch) + (dest ? ':' + options.branch : '');
       log.subhead('Fetching "' + options.branch + '" ' + (options.shallowFetch ? 'files' : 'history') + ' from ' + options.remote + '.');
 
       // `--update-head-ok` allows fetch on a branch with uncommited changes
-      execWrap('git fetch --progress --verbose --update-head-ok ' + depth + remoteName + ' ' + options.branch + ':' + options.branch, false, true);
+      execWrap('git fetch --progress --verbose --update-head-ok ' + depth + remoteName + ' ' + branch, false, true);
     }
 
     // Make the current working tree the branch HEAD without checking out files
@@ -244,8 +245,9 @@ module.exports = function (grunt) {
 
     // Set branch to track remote
     function gitTrack () {
+      var remoteBranch = options.remoteBranch || options.branch;
       if (shelljs.exec('git config branch.' + options.branch + '.remote', {silent: true}).output.replace(/\n/g, '') !== remoteName) {
-        execWrap('git branch --set-upstream-to=' + remoteName + '/' + options.branch + ' ' + options.branch);
+        execWrap('git branch --set-upstream-to=' + remoteName + '/' + remoteBranch + ' ' + options.branch);
       }
     }
 
@@ -328,26 +330,27 @@ module.exports = function (grunt) {
       localBranchExists = shelljs.exec('git show-ref --verify --quiet refs/heads/' + options.branch, {silent: true}).code === 0;
       remoteBranchExists = shelljs.exec('git ls-remote --exit-code ' + remoteName + ' ' + (options.remoteBranch || options.branch), {silent: true}).code === 0;
 
-      if (!localBranchExists) {
-        // Create local branch
-        if (remoteBranchExists) {
-          log.subhead('Creating local branch "' + options.branch + '".');
-          execWrap('git checkout -b ' + options.branch);
-        } else {
-          log.subhead('Creating orphan branch "' + options.branch + '".');
-          execWrap('git checkout --orphan ' + options.branch);
-        }
-      } else {
-        log.subhead('Switching to local branch "' + options.branch + '".');
-        execWrap('git checkout -q ' + options.branch);
+      if (remoteBranchExists) {
+        gitFetch();
       }
 
-      if (remoteBranchExists) {
-        if (!localBranchExists || shouldUpdate()) {
-          safeUpdate();
-        }
-
+      if (remoteBranchExists && localBranchExists) {
+        // Make sure local is tracking remote
         gitTrack();
+
+        // Update local branch history if necessary
+        if (shouldUpdate()) {
+          gitFetch(true);
+        }
+      }
+      else if (remoteBranchExists && !localBranchExists) { //// TEST THIS ONE
+        // Create local branch that tracks remote
+        execWrap('git branch --track ' + options.branch + ' ' + remoteName + '/' + (options.remoteBranch || options.branch));
+      }
+      else if (!remoteBranchExists && !localBranchExists) {
+        // Create local branch
+        log.subhead('Creating branch "' + options.branch + '".');
+        execWrap('git checkout --orphan ' + options.branch);
       }
 
       // Perform actions
