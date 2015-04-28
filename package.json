@@ -25,6 +25,7 @@
     "test": "grunt test"
   },
   "dependencies": {
+    "semver": "~4.3.3",
     "shelljs": "~0.2.6"
   },
   "devDependencies": {

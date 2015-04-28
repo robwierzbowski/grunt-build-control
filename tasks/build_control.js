@@ -14,6 +14,7 @@ module.exports = function (grunt) {
   var crypto = require('crypto');
   var shelljs = require('shelljs');
   var url = require('url');
+  var semver = require('semver');
 
   grunt.registerMultiTask('buildcontrol', 'Version control built code.', function() {
 
@@ -106,6 +107,12 @@ module.exports = function (grunt) {
 
     // Check requirements
     function checkRequirements () {
+      // Check if git version meets requirements
+      var gitVersion = (shelljs.exec('git --version', {silent: true}).output.match(/\d+\.\d+\.\d+/) || []).shift();
+      if (!gitVersion || semver.lt(gitVersion, '1.8.0')) {
+        throw('Current Git version is ' + gitVersion + '. This plugin requires Git from 1.8.0.');
+      }
+
       // Check that build directory exists
       if (!fs.existsSync(options.dir)) {
         throw('Build directory "' + options.dir + '" doesn\'t exist. Nothing to version.');
