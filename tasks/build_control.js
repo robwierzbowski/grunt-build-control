@@ -112,7 +112,7 @@ module.exports = function (grunt) {
       // Check if git version meets requirements
       var gitVersion = (shelljs.exec('git --version', {silent: true}).output.match(/\d+\.\d+\.\d+/) || []).shift();
       if (!gitVersion || semver.lt(gitVersion, '1.8.0')) {
-        throw('Current Git version is ' + gitVersion + '. This plugin requires Git from 1.8.0.');
+        throw('Current Git version is ' + gitVersion + '. This plugin requires Git >= 1.8.0.');
       }
 
       // Check that build directory exists
@@ -133,8 +133,8 @@ module.exports = function (grunt) {
           'the built code.\n');
       }
 
-      if (semver.lt(gitVersion, '1.9.0')) {
-        throw('Current Git version is ' + gitVersion + '. Option "shallowFetch" is supported on Git from 1.9.0.');
+      if (options.shallowFetch && semver.lt(gitVersion, '1.9.0')) {
+        throw('Current Git version is ' + gitVersion + '. Option "shallowFetch" is supported on Git >= 1.9.0.');
       }
     }
 
