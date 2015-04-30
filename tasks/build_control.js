@@ -14,6 +14,7 @@ module.exports = function (grunt) {
   var crypto = require('crypto');
   var shelljs = require('shelljs');
   var url = require('url');
+  var semver = require('semver');
 
   grunt.registerMultiTask('buildcontrol', 'Version control built code.', function() {
 
@@ -34,6 +35,7 @@ module.exports = function (grunt) {
       force: false,
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
       connectCommits: true,
+      shallowFetch: false,
       config: {}
     });
 
@@ -43,6 +45,7 @@ module.exports = function (grunt) {
       name:   '(unavailable)'
     };
 
+    var depth = options.shallowFetch ? '--depth=1 ' : '';
     var localBranchExists;
     var remoteBranchExists;
 
@@ -106,6 +109,12 @@ module.exports = function (grunt) {
 
     // Check requirements
     function checkRequirements () {
+      // Check if git version meets requirements
+      var gitVersion = (shelljs.exec('git --version', {silent: true}).output.match(/\d+\.\d+\.\d+/) || []).shift();
+      if (!gitVersion || semver.lt(gitVersion, '1.8.0')) {
+        throw('Current Git version is ' + gitVersion + '. This plugin requires Git >= 1.8.0.');
+      }
+
       // Check that build directory exists
       if (!fs.existsSync(options.dir)) {
         throw('Build directory "' + options.dir + '" doesn\'t exist. Nothing to version.');
@@ -122,6 +131,10 @@ module.exports = function (grunt) {
         throw ('There are uncommitted changes in your working directory. \n' +
           'Please commit changes to the main project before you commit to \n' +
           'the built code.\n');
+      }
+
+      if (options.shallowFetch && semver.lt(gitVersion, '1.9.0')) {
+        throw('Current Git version is ' + gitVersion + '. Option "shallowFetch" is supported on Git >= 1.9.0.');
       }
     }
 
@@ -156,7 +169,7 @@ module.exports = function (grunt) {
     // Initialize git repo if one doesn't exist
     function initGit () {
       if (!fs.existsSync(path.join(gruntDir, options.dir, '.git'))) {
-        log.subhead('Creating git repository in ' + options.dir + '.');
+        log.subhead('Creating git repository in "' + options.dir + '".');
 
         execWrap('git init');
       }
@@ -212,11 +225,12 @@ module.exports = function (grunt) {
 
     // Fetch remote refs to a specific branch, equivalent to a pull without
     // checkout
-    function safeUpdate () {
-      log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
+    function gitFetch (dest) {
+      var branch = (options.remoteBranch || options.branch) + (dest ? ':' + options.branch : '');
+      log.subhead('Fetching "' + options.branch + '" ' + (options.shallowFetch ? 'files' : 'history') + ' from ' + options.remote + '.');
 
       // `--update-head-ok` allows fetch on a branch with uncommited changes
-      execWrap('git fetch --progress --verbose --update-head-ok ' + remoteName + ' ' + options.branch + ':' + options.branch, false, true);
+      execWrap('git fetch --progress --verbose --update-head-ok ' + depth + remoteName + ' ' + branch, false, true);
     }
 
     // Make the current working tree the branch HEAD without checking out files
@@ -229,16 +243,11 @@ module.exports = function (grunt) {
       execWrap('git reset', false);
     }
 
-    // Fetch remote refs
-    function gitFetch () {
-      log.subhead('Fetching ' + options.branch + ' history from ' + options.remote + '.');
-      execWrap('git fetch --progress --verbose ' + remoteName, false, true);
-    }
-
     // Set branch to track remote
     function gitTrack () {
+      var remoteBranch = options.remoteBranch || options.branch;
       if (shelljs.exec('git config branch.' + options.branch + '.remote', {silent: true}).output.replace(/\n/g, '') !== remoteName) {
-        execWrap('git branch --set-upstream-to=' + remoteName + '/' + options.branch + ' ' + options.branch);
+        execWrap('git branch --set-upstream-to=' + remoteName + '/' + remoteBranch + ' ' + options.branch);
       }
     }
 
@@ -255,7 +264,7 @@ module.exports = function (grunt) {
         return;
       }
 
-      log.subhead('Committing changes to ' + options.branch + '.');
+      log.subhead('Committing changes to "' + options.branch + '".');
       execWrap('git add -A .');
 
       // generate commit message
@@ -270,8 +279,8 @@ module.exports = function (grunt) {
     // Tag local branch
     function gitTag () {
       // If the tag exists, skip tagging
-      if (shelljs.exec('git rev-parse --revs-only ' + options.tag, {silent: true}).output !== '') {
-        log.subhead('The tag "' + options.tag + '" already exists. Skipping tagging.');
+      if (shelljs.exec('git ls-remote --tags --exit-code ' + remoteName + ' ' + options.tag, {silent: true}).code === 0) {
+        log.subhead('The tag "' + options.tag + '" already exists on remote. Skipping tagging.');
         return;
       }
 
@@ -331,7 +340,7 @@ module.exports = function (grunt) {
 
         // Update local branch history if necessary
         if (shouldUpdate()) {
-          safeUpdate();
+          gitFetch(true);
         }
       }
       else if (remoteBranchExists && !localBranchExists) { //// TEST THIS ONE
