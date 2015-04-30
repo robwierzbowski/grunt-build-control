@@ -145,6 +145,13 @@ Default: `true`
 Make sure that every commit on the built code branch matches a commit on the main project branch. If the main project's working directory has uncommitted changes, a commit task will throw an error.
 
 
+#### shallowFetch
+Type: `Boolean`  
+Default: `false`  
+
+Fetches `branch` from `remote` with the flag `--depth=1`. Which makes a shallow clone with a history truncated to the last revision. Might bring some boost on long-history repositories. **Note, you must have [Git](http://git-scm.com/) `> 1.9` to use this option.**
+
+
 #### config
 Type: `Object`  
 Default: `{}`  
@@ -253,7 +260,7 @@ Don't check out built code branches while in the main project directory. Differe
 Post bugs and feature requests to the [Github issue tracker](https://github.com/robwierzbowski/grunt-build-control/issues). In lieu of a formal styleguide, take care to maintain the existing coding style. Lint and test your code using [Grunt](https://github.com/gruntjs/grunt).
 
 ## Release History
-
+[See releases for newer versions](https://github.com/robwierzbowski/grunt-build-control/releases)
 - 2013-11-29 v0.1.2: Add defaults for all properties.
 - 2013-10-19 v0.1.1: Stable initial release.
 
