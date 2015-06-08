@@ -10,8 +10,9 @@ module.exports = function (grunt) {
       options: {
         dir: 'dist',
         config: {
-          "user.name": "John Doe",
-          "user.email": "johndoe@example.com"
+          'user.name': "John Doe",
+          'user.email': "johndoe@example.com",
+          'http.sslVerify': false
         },
         remote: '../../remote',
         connectCommits: false

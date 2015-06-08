@@ -522,7 +522,7 @@ describe('buildcontrol', function() {
   });
 
 
-  describe('git config', function(done) {
+  describe('git config', function() {
     it('should set git config variables properly', function(done) {
       var tasks = [];
 
@@ -540,6 +540,20 @@ describe('buildcontrol', function() {
       tasks.push(function(next) {
         childProcess.exec('git config user.name', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
           stdout.should.have.string('John Doe');
+          next(err);
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git config user.email', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
+          stdout.should.have.string('johndoe@example.com');
+          next(err);
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git config http.sslVerify', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
+          stdout.should.have.string('false');
           next(err);
         });
       });
