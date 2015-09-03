@@ -160,6 +160,29 @@ Optional [git config](http://git-scm.com/docs/git-config) settings for the repos
 ex: `{'user.name': 'John Doe'}`
 
 
+#### ebDeploy
+Type: `Boolean`
+Default: `false`
+
+Optional way to deploy through Amazon Elastic Beanstalk. Make sure that [Elastic Beanstalk CLI](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html) is installed
+and [eb init](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-configuration.html) is configured correctly in the provided `dir` directory.
+
+
+#### ebEnvironmentName
+Type: `String`
+Default: ''
+
+Used in conjunction with `ebDeploy` to specify a environment name.
+
+
+#### ebOptions
+Type: `Object`
+Defaults: `{}`
+
+For all keys in `ebOptions`, it'll build a `key + value` pair to be passed into `eb deploy. [Available Options](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb3-deploy.html).
+
+
+
 ### Usage
 
 A common use of grunt-build-control is to commit and push built code to the GitHub pages branch of the main repository, or to the master branch of a git-based deployment server like Heroku.

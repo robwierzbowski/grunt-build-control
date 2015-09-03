@@ -3,6 +3,7 @@ before_install:
   - sudo apt-get install git
   - git config --global user.email "testuser@example.com"
   - git config --global user.name "Test User"
+  - sudo pip install awsebcli
 node_js:
   - "0.11"
   - "0.10"
