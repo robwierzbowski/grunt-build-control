@@ -1,13 +1,14 @@
 /*jshint -W030, mocha:true */
 'use strict';
 
+var chai = require('chai');
+var expect = chai.expect;
+var should = chai.should();
+
 var path = require('path');
 var fs = require('fs-extra');
 var async = require('async');
 var childProcess = require('child_process');
-var chai = require('chai');
-var should = chai.should();
-var expect = chai.expect;
 var _ = require('lodash');
 
 
@@ -152,7 +153,7 @@ describe('buildcontrol', function() {
        */
       tasks.push(function execute_scenario(next) {
         execScenario(function(err) {
-          should.not.exist(err);
+          expect(err).to.not.exist;
           next();
         });
       });
@@ -161,7 +162,7 @@ describe('buildcontrol', function() {
        * Should style validations
        */
       tasks.push(function verify_file_exists(next) {
-        fs.existsSync('validate/empty_file').should.be.true;
+        expect(fs.existsSync('validate/empty_file')).be.true;
         next();
       });
 
@@ -170,7 +171,7 @@ describe('buildcontrol', function() {
           sha = sha.substr(0, 7);
 
           childProcess.exec('git log --pretty=oneline --no-color', {cwd: 'validate'}, function(err, stdout) {
-            stdout.should.have.string('from commit ' + sha);
+            expect(stdout).have.string('from commit ' + sha);
             next();
           });
         });
@@ -185,9 +186,9 @@ describe('buildcontrol', function() {
   describe('merge multiple repos', function() {
     it('merge multiple repos', function(done) {
       execScenario(function(err, stdout, stderr) {
-        should.not.exist(err);
+        expect(err).to.not.exist;
         var numberFile = fs.readFileSync('validate/numbers.txt', {encoding: 'utf8'});
-        numberFile.should.be.eql('0 1 2\n');
+        expect(numberFile).be.eql('0 1 2\n');
         done();
       });
     });
@@ -202,7 +203,7 @@ describe('buildcontrol', function() {
       tasks.push(function(next) {
         execScenario(function() {
           var numberFile = fs.readFileSync('validate/numbers.txt', {encoding: 'utf8'});
-          numberFile.should.be.eql('1 2 3 4\n');
+          expect(numberFile).be.eql('1 2 3 4\n');
           next();
         });
       });
@@ -212,14 +213,14 @@ describe('buildcontrol', function() {
 
         execScenario(function(err, results) {
           var numberFile = fs.readFileSync('validate/numbers.txt', {encoding: 'utf8'});
-          numberFile.should.be.eql('100 200');
+          expect(numberFile).be.eql('100 200');
           next();
         });
       });
 
       tasks.push(function(next) {
         childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'validate'}, function(err, stdout) {
-          stdout.should.have.string('simple deploy commit message');
+          expect(stdout).have.string('simple deploy commit message');
           next();
         });
       });
@@ -230,8 +231,8 @@ describe('buildcontrol', function() {
 
     it('should not have <TOKEN> in the message', function(done) {
       execScenario(function(err, stdout) {
-        should.not.exist(err);
-        stdout.should.not.have.string('<TOKEN>');
+        expect(err).to.not.exist;
+        expect(stdout).not.have.string('<TOKEN>');
         done();
       });
     });
@@ -245,10 +246,10 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         execScenario(function(err, stdout) {
-          stdout.should.not.have.string('privateUsername');
-          stdout.should.not.have.string('1234567890abcdef');
-          stdout.should.have.string('github.com/pubUsername/temp.git');
-          stdout.should.have.string('<CREDENTIALS>');
+          expect(stdout).not.have.string('privateUsername');
+          expect(stdout).not.have.string('1234567890abcdef');
+          expect(stdout).have.string('github.com/pubUsername/temp.git');
+          expect(stdout).have.string('<CREDENTIALS>');
           next();
         });
       });
@@ -268,7 +269,7 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         childProcess.exec('git remote -v', {cwd: 'repo/dist'}, function(err, stdout) {
-          stdout.should.have.string('https://privateUsername:1234567890abcdef@github.com/pubUsername/temp.git');
+          expect(stdout).have.string('https://privateUsername:1234567890abcdef@github.com/pubUsername/temp.git');
           next();
         });
       });
@@ -311,7 +312,7 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         childProcess.exec('git log', {cwd: 'repo'}, function(err, stdout) {
-          stdout.should.have.string('a build commit');
+          expect(stdout).have.string('a build commit');
           next();
         });
       });
@@ -346,7 +347,7 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         childProcess.exec('git branch -lvv', {cwd: 'repo'}, function(err, stdout) {
-          stdout.should.not.have.string('origin/build');
+          expect(stdout).not.have.string('origin/build');
           next();
         });
       });
@@ -416,7 +417,7 @@ describe('buildcontrol', function() {
     async.each(shouldMatch, function(url) {
       it('should have created remote for: ' + url, function(done) {
         generateRemote(url, function(err, remoteURL) {
-          remoteURL.should.have.string(url);
+          expect(remoteURL).have.string(url);
           done();
         });
       });
@@ -435,8 +436,8 @@ describe('buildcontrol', function() {
     async.each(shouldNotMatch, function(url) {
       it('should not have created remote for: ' + url, function(done) {
         generateRemote(url, function(err, remoteURL) {
-          remoteURL.should.not.have.string(url);
-          remoteURL.should.be.empty;
+          expect(remoteURL).not.have.string(url);
+          expect(remoteURL).be.empty;
           done();
         });
       });
@@ -463,8 +464,8 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'stage_validate'}, function(err, stdout) {
-          stdout.should.have.string('first stage commit');
-          stdout.should.have.string('new stage commit');
+          expect(stdout).have.string('first stage commit');
+          expect(stdout).have.string('new stage commit');
           next();
         });
       });
@@ -477,8 +478,8 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'prod_validate'}, function(err, stdout) {
-          stdout.should.have.string('first prod commit');
-          stdout.should.have.string('new prod commit');
+          expect(stdout).have.string('first prod commit');
+          expect(stdout).have.string('new prod commit');
           next();
         });
       });
@@ -511,7 +512,7 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'stage_validate'}, function(err, stdout) {
-          stdout.match(/new stage commit/g).should.be.length(2);
+          expect(stdout.match(/new stage commit/g)).be.length(2);
           next();
         });
       });
@@ -522,7 +523,7 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'prod_validate'}, function(err, stdout) {
-          stdout.match(/new prod commit/g).should.be.length(2);
+          expect(stdout.match(/new prod commit/g)).be.length(2);
           next();
         });
       });
@@ -542,28 +543,28 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         execScenario(function(err, stdout, stderr) {
-          should.not.exist(err);
+          expect(err).to.not.exist;
           next(err);
         });
       });
 
       tasks.push(function(next) {
         childProcess.exec('git config user.name', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
-          stdout.should.have.string('John Doe');
+          expect(stdout).have.string('John Doe');
           next(err);
         });
       });
 
       tasks.push(function(next) {
         childProcess.exec('git config user.email', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
-          stdout.should.have.string('johndoe@example.com');
+          expect(stdout).have.string('johndoe@example.com');
           next(err);
         });
       });
 
       tasks.push(function(next) {
         childProcess.exec('git config http.sslVerify', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
-          stdout.should.have.string('false');
+          expect(stdout).have.string('false');
           next(err);
         });
       });
@@ -591,7 +592,7 @@ describe('buildcontrol', function() {
 
       tasks.push(function(next) {
         childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'validate'}, function(err, stdout) {
-          stdout.should.have.string('new grunt-build commit');
+          expect(stdout).have.string('new grunt-build commit');
           next();
         });
       });
@@ -645,8 +646,8 @@ describe('buildcontrol', function() {
       // and it should not have the old commit "commit to be overwritten"
       tasks.push(function(next) {
         childProcess.exec('git log --pretty=oneline --abbrev-commit --no-color', {cwd: 'validate'}, function(err, stdout) {
-          stdout.should.have.string('number 3 commit');
-          stdout.should.not.have.string('commit to be overwritten');
+          expect(stdout).have.string('number 3 commit');
+          expect(stdout).not.have.string('commit to be overwritten');
           next();
         });
       });
