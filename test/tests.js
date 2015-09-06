@@ -5,13 +5,20 @@ var path = require('path');
 var fs = require('fs-extra');
 var async = require('async');
 var childProcess = require('child_process');
-var should = require('chai').should();
+var chai = require('chai');
+var should = chai.should();
+var expect = chai.expect;
 var _ = require('lodash');
 
 
 var GRUNT_EXEC = 'node ' + path.resolve('node_modules/grunt-cli/bin/grunt');
 
-
+/**
+ *  @callback scenarioCallback
+ * @param {Error} err - If there's an error, this will not be null
+ * @param {String} stdout - stdout from running grunt
+ * @param {String} stderr - stderr from running grunt
+ */
 
 /**
  * Executes a Scenario given by tests.
@@ -25,6 +32,8 @@ var GRUNT_EXEC = 'node ' + path.resolve('node_modules/grunt-cli/bin/grunt');
  **
  * NOTE: this function DOES change the process's working directory to the `scenario` so that
  * validations are easier access.
+ *
+ * @param {scenarioCallback} cb - The callback that handles the response
  */
 var execScenario = function(cb) {
   var mockRepoDir = path.normalize(__dirname + '/mock');
@@ -70,6 +79,7 @@ var execScenario = function(cb) {
     cb(err, results[1].stdout, results[1].stderr);
   });
 };
+
 
 
 
@@ -522,7 +532,7 @@ describe('buildcontrol', function() {
   });
 
 
-  describe('git config', function(done) {
+  describe('git config', function() {
     it('should set git config variables properly', function(done) {
       var tasks = [];
 
@@ -540,6 +550,20 @@ describe('buildcontrol', function() {
       tasks.push(function(next) {
         childProcess.exec('git config user.name', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
           stdout.should.have.string('John Doe');
+          next(err);
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git config user.email', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
+          stdout.should.have.string('johndoe@example.com');
+          next(err);
+        });
+      });
+
+      tasks.push(function(next) {
+        childProcess.exec('git config http.sslVerify', {cwd: 'repo/dist'}, function(err, stdout, stderr) {
+          stdout.should.have.string('false');
           next(err);
         });
       });
@@ -575,7 +599,6 @@ describe('buildcontrol', function() {
       async.series(tasks, done);
     });
   });
-
 
 
   describe('force push', function() {
@@ -632,4 +655,70 @@ describe('buildcontrol', function() {
       async.series(tasks, done);
     });
   });
+
+
+  describe('elastic beanstalk config not found', function() {
+    it('should check for an existing eb config', function(done) {
+      var tasks = [];
+
+      tasks.push(function git_init(next) {
+        childProcess.exec('git init', next);
+      });
+
+      tasks.push(function git_add(next) {
+        childProcess.exec('git add .', next);
+      });
+
+      tasks.push(function git_commit(next) {
+        childProcess.exec('git commit -m "basic deployment"', next);
+      });
+
+      /**
+       * Execute scenario
+       */
+      tasks.push(function execute_scenario(next) {
+        execScenario(function(err, stdout, stderr) {
+          expect(err).to.exists;
+          expect(stdout).to.match(/config not found/gi);
+          next();
+        });
+      });
+
+      async.series(tasks, done);
+    });
+
+  });
+
+
+  describe('elastic beanstalk config found, deploying', function() {
+    it('should check for an existing eb config', function(done) {
+      var tasks = [];
+
+      tasks.push(function git_init(next) {
+        childProcess.exec('git init', next);
+      });
+
+      tasks.push(function git_add(next) {
+        childProcess.exec('git add .', next);
+      });
+
+      tasks.push(function git_commit(next) {
+        childProcess.exec('git commit -m "basic deployment"', next);
+      });
+
+      /**
+       * Execute scenario
+       */
+      tasks.push(function execute_scenario(next) {
+        execScenario(function(err, stdout, stderr) {
+          expect(stdout).to.match(/Deploying to Elastic Beanstalk/gi);
+          next();
+        });
+      });
+
+      async.series(tasks, done);
+    });
+
+  });
+
 });

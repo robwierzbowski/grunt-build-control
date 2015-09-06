@@ -36,7 +36,12 @@ module.exports = function (grunt) {
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
       connectCommits: true,
       shallowFetch: false,
-      config: {}
+      config: {},
+
+      // elastic beanstalk
+      ebDeploy: false,
+      ebEnvironmentName: '',
+      ebOptions: {}
     });
 
     var tokens = {
@@ -303,6 +308,33 @@ module.exports = function (grunt) {
       }
     }
 
+    function ebExists() {
+      log.subhead('Checking for an existing Elastic Beanstalk configs');
+
+      var ebConfigFilePath = '.elasticbeanstalk/config.yml';
+
+      var ebConfigExists = fs.existsSync(ebConfigFilePath);
+      if (ebConfigExists) {
+        log.subhead('Elastic Beanstalk config found');
+      }
+      else {
+        throw('Elastic Beanstalk config not found at "' + ebConfigFilePath + '", running `eb config` might be required.');
+      }
+
+      return ebConfigExists;
+    }
+
+    function ebDeploy() {
+      log.subhead('Deploying to Elastic Beanstalk');
+
+      var ebOptionsString = '';
+      for (var key in options.ebOptions) {
+       ebOptionsString += ' ' + key + ' ' + options.ebOptions[key];
+      }
+
+      execWrap('eb deploy ' + config.ebEnvironmentName + ' ' + ebOptionsString);
+    }
+
     // Run task
     try {
 
@@ -367,6 +399,10 @@ module.exports = function (grunt) {
 
       if (options.push) {
         gitPush();
+      }
+
+      if (options.ebDeploy && ebExists()) {
+        ebDeploy();
       }
     }
     catch (e) {
