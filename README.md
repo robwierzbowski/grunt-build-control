@@ -4,13 +4,10 @@
 
 > Version control built code.
 
-### HELP WRITE TESTS FOR THIS TASK
-
-For continued development, this library needs test coverage. If you like writing tests and like this Grunt task, please take a look at [issue #19](https://github.com/robwierzbowski/grunt-build-control/issues/19) and consider helping with a pull request. Any assistance is appreciated.
-
 ## Getting started
 
-This plugin requires [Grunt](http://gruntjs.com/) `~0.4.0` and [Git](http://git-scm.com/) `> 1.8`.
+This plugin requires [Grunt](http://gruntjs.com/) `~0.4.0` and [Git](http://git-scm.com/) `>= 1.8`.  
+grunt-build-control also supports [AWS Electric Beanstalk](https://aws.amazon.com/elasticbeanstalk/) `>= v3.5.2`
 
 If you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide which explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with Grunt you can install the plugin with the command:
 
