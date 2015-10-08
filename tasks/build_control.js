@@ -145,11 +145,11 @@ module.exports = function (grunt) {
 
     // Assign %token% values if available
     function assignTokens () {
-      var sourceBranch = shelljs.exec('git symbolic-ref --quiet HEAD', {silent: true});
+      var sourceBranch = shelljs.exec('git rev-parse --abbrev-ref HEAD', {silent: true});
       var sourceCommit = shelljs.exec('git rev-parse --short HEAD', {silent: true});
 
       if (sourceBranch.code === 0) {
-        tokens.branch = sourceBranch.output.split('/').pop().replace(/\n/g, '');
+        tokens.branch = sourceBranch.output.replace(/\n/g, '');
       }
       if (sourceCommit.code === 0) {
         tokens.commit = sourceCommit.output.replace(/\n/g, '');
