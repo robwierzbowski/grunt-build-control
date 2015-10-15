@@ -174,7 +174,7 @@ Used in conjunction with `ebDeploy` to specify a environment name.
 Type: `Object`
 Defaults: `{}`
 
-For all keys in `ebOptions`, it'll build a `key + value` pair to be passed into `eb deploy. [Available Options](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb3-deploy.html).
+For all keys in `ebOptions`, it'll build a `key + value` pair to be passed into `eb deploy`. [Available Options can be found here](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb3-deploy.html).
 
 
 
