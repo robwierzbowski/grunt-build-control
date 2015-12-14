@@ -118,7 +118,7 @@ describe('buildcontrol', function() {
     // copy scenario to `test/mock`
       fs.copySync('scenarios/' + scenarioPath, 'mock');
 
-      // ensure all tests are are using the working directory: `test/mock`
+      // ensure all tests are are assuming the current working directory is: `test/mock`
     process.chdir('mock');
 
       done();
@@ -134,56 +134,47 @@ describe('buildcontrol', function() {
 
 
   describe('basic deployment', function() {
-    it('should have pushed a file and had the correct commit in "verify" repo', function(done) {
-      // the working directory is `test/mock`.
-      var tasks = [];
+    it('should have pushed a file and had the correct commit in "verify" repo', function () {
+      // the current working directory is `test/mock/
 
-      /**
-       * Test case specific setup
-       */
-        // make `mock` a actual repository
-      tasks.push(function git_init(next) {
-        childProcess.exec('git init', next);
-      });
+      return Promise.resolve()
+        .then(function () {
+          return childProcessExec('git init', {cwd: 'repo'});
+        })
+        .then(function () {
+          return childProcessExec('git add .', {cwd: 'repo'})
+        })
+        .then(function () {
+          return childProcessExec('git commit -m "basic deployment"', {cwd: 'repo'});
+        })
 
-      tasks.push(function git_add(next) {
-        childProcess.exec('git add .', next);
-      });
-
-      tasks.push(function git_commit(next) {
-        childProcess.exec('git commit -m "basic deployment"', next);
-      });
-
-      /**
-       * Execute scenario
-       */
-      tasks.push(function execute_scenario(next) {
-        execScenario(function(err) {
-          expect(err).to.not.exist;
-          next();
-        });
-      });
-
-      /**
-       * Should style validations
-       */
-      tasks.push(function verify_file_exists(next) {
-        expect(fs.existsSync('validate/empty_file')).be.true;
-        next();
-      });
-
-      tasks.push(function verify_commit_message(next) {
-        childProcess.exec('git rev-parse HEAD', function(err, sha) {
-          sha = sha.substr(0, 7);
-
-          childProcess.exec('git log --pretty=oneline --no-color', {cwd: 'validate'}, function(err, stdout) {
-            expect(stdout).have.string('from commit ' + sha);
-            next();
+        // verify output from grunt
+        .then(function () {
+          return execScenario(function (err, stdout) {
+            expect(err).to.equal(null);
+            expect(stdout).to.contain('Initialized empty Git repository');
+            expect(stdout).to.contain('Committing changes to "master".');
+            expect(stdout).to.match(/Built repo from commit \w+ on branch master/g);
+            expect(stdout).to.contain('Pushing master to ../../remote');
           });
-        });
-      });
+        })
 
-      async.series(tasks, done);
+        // verify that the commit actually got pushed
+        .then(function () {
+          return childProcessExec('git rev-parse HEAD', {cwd: 'repo'})
+        })
+        .then(function (results) {
+          // the commit sha from the source repo
+          return results.stdout.substr(0, 7);
+        })
+
+        .then(function (sha) {
+          return childProcessExec('git log --pretty=oneline --no-color', {cwd: 'validate'})
+            .then(function (results) {
+              expect(results.error).to.equal(null);
+              expect(results.stdout).have.string('from commit ' + sha);
+            });
+        });
     });
   });
 
