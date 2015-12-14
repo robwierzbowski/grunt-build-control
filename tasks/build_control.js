@@ -132,10 +132,13 @@ module.exports = function (grunt) {
 
       // If connectCommits is true check that the main project's working
       // directory is clean
-      if (options.connectCommits && shelljs.exec('git diff', {silent: true}).output !== '') {
-        throw ('There are uncommitted changes in your working directory. \n' +
+      if (options.connectCommits) {
+        var gitDiffOutput = shelljs.exec('git diff').output;
+        if (gitDiffOutput !== '') {
+          throw ('There are uncommitted changes in your working directory. \n' +
           'Please commit changes to the main project before you commit to \n' +
           'the built code.\n');
+        }
       }
 
       if (options.shallowFetch && semver.lt(gitVersion, '1.9.0')) {

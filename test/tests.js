@@ -150,7 +150,7 @@ describe('buildcontrol', function() {
 
         // verify output from grunt
         .then(function () {
-          return execScenario(function (err, stdout) {
+          return execScenario(function (err, stdout, stderr) {
             expect(err).to.equal(null);
             expect(stdout).to.contain('Initialized empty Git repository');
             expect(stdout).to.contain('Committing changes to "master".');
@@ -226,6 +226,8 @@ describe('buildcontrol', function() {
 
 
   describe('merge multiple repos', function() {
+    this.timeout(30000);
+
     it('merge multiple repos', function(done) {
       execScenario(function(err, stdout, stderr) {
         expect(err).to.not.exist;
@@ -531,7 +533,7 @@ describe('buildcontrol', function() {
 
 
     it('should do it multiple times', function(done) {
-      this.timeout(15000);
+      this.timeout(30000);
 
       var tasks = [];
 
@@ -764,4 +766,35 @@ describe('buildcontrol', function() {
 
   });
 
+
+  describe('connect commits', function () {
+    it('should not be able to deploy if there is uncommitted files', function () {
+      return Promise.resolve()
+
+        .then(function () {
+          return childProcessExec('git init', {cwd: 'repo'});
+        })
+        .then(function () {
+          fs.writeFileSync('repo/file.txt', 'brand file contents.\n');
+          return childProcessExec('git add .', {cwd: 'repo'});
+        })
+
+        .then(function () {
+          return childProcessExec('git commit -m "first commit"', {cwd: 'repo'});
+        })
+
+        .then(function () {
+          fs.ensureDirSync('repo/build');
+          fs.writeFileSync('repo/build/hello.txt', 'hello world!\n');
+
+          // pretend there was some unchanged files
+          fs.writeFileSync('repo/file.txt', 'more content added.\n');
+          return execScenario(function (err, stdout, stderr) {
+            expect(err).to.not.equal(null);
+            expect(stdout).to.contain('more content added.');
+            expect(stdout).to.contain('Warning: There are uncommitted changes in your working directory.');
+          });
+        });
+    });
+  });
 });
