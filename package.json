@@ -25,6 +25,7 @@
     "test": "grunt test"
   },
   "dependencies": {
+    "bluebird": "^3.0.6",
     "semver": "~4.3.3",
     "shelljs": "~0.2.6"
   },

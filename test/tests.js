@@ -10,6 +10,7 @@ var fs = require('fs-extra');
 var async = require('async');
 var childProcess = require('child_process');
 var _ = require('lodash');
+var Promise = require('bluebird');
 
 
 var GRUNT_EXEC = 'node ' + path.resolve('node_modules/grunt-cli/bin/grunt');
@@ -23,12 +24,13 @@ var GRUNT_EXEC = 'node ' + path.resolve('node_modules/grunt-cli/bin/grunt');
 
 /**
  * Executes a Scenario given by tests.
+ * The `describe` block needs to correspond with the name of the Mock folder to be tested
  *
- * A Scenario can contain:
+ * A Scenario contains:
  *    repo - the folder to contain the repository
  *    repo/gruntfile.js - the gruntfile to be tested
- *    remote - (optional) can contain a setup cloud repository
- *    validate - (will be overwritten) it is cloned from remote (used to validate a push)
+ *    remote - (optional) folder to be the stand in for the the cloud repository
+ *    validate - (will be overwritten) its cloned from remote/ (used to validate a push)
  *
  **
  * NOTE: this function DOES change the process's working directory to the `scenario` so that
@@ -43,43 +45,46 @@ var execScenario = function(cb) {
   var remoteDir = path.join(mockRepoDir, 'remote');
   var verifyDir = path.join(mockRepoDir, 'validate');
 
+  return Promise.resolve()
 
-  var tasks = [];
+    // create the "remote" to be pushed to
+    .tap(function () {
+      fs.ensureDirSync(remoteDir);
+      return childProcessExec('git init --bare', {cwd: remoteDir});
+    })
 
+    // make `repo/` a repository
+    .tap(function() {
+      //return childProcessExec('git init', {cwd: distDir});
+    })
 
-  tasks.push(function createRemote(next) {
-    fs.ensureDirSync(remoteDir);
-    childProcess.exec('git init --bare', {cwd: remoteDir}, function(err) {
-      if (err) throw new Error(err);
-      next(err);
+    // execute the grunt default command
+    .then(function () {
+      return childProcessExec(GRUNT_EXEC + ' --no-color', {cwd: distDir});
+    })
+
+    // clone the "remote" into "verify/"
+    .tap(function () {
+      fs.removeSync(verifyDir); // since we're cloning from `remote/` we'll just remove the folder if it exists
+      return childProcessExec('git clone remote validate', {cwd: mockRepoDir});
+    })
+    .then(function (gruntOutput) {
+      return cb(gruntOutput.error, gruntOutput.stdout, gruntOutput.stderr);
     });
-  });
-
-
-  tasks.push(function executeGruntCommand(next) {
-    //options
-    GRUNT_EXEC += ' --no-color';
-
-    childProcess.exec(GRUNT_EXEC, {cwd: distDir}, function(err, stdout, stderr) {
-      next(err, {stdout: stdout, stderr: stderr});
-    });
-  });
-
-
-  tasks.push(function createVerifyFromRemote(next) {
-    fs.removeSync(verifyDir); // since we're cloning from `remote/` we'll just remove the folder if it exists
-    childProcess.exec('git clone remote validate', {cwd: mockRepoDir}, function(err) {
-      if (err) throw new Error(err);
-      next(err);
-    });
-  });
-
-
-  async.series(tasks, function returnCallbackStatus(err, results) {
-    // return results from executeGruntCommand
-    cb(err, results[1].stdout, results[1].stderr);
-  });
 };
+
+
+function childProcessExec(command, options) {
+  return new Promise(function (resolve) {
+    childProcess.exec(command, options, function (err, stdout, stderr) {
+      return resolve({
+        error: err,
+        stdout: stdout,
+        stderr: stderr
+      });
+    });
+  });
+}
 
 
 
@@ -99,6 +104,7 @@ describe('buildcontrol', function() {
 
 
   beforeEach(function(done) {
+    // the describe is the mock folder's name.
     var scenarioPath = this.currentTest.parent.title;
 
     // ensure that we reset to `test/` dir
@@ -179,7 +185,6 @@ describe('buildcontrol', function() {
 
       async.series(tasks, done);
     });
-
   });
 
 
