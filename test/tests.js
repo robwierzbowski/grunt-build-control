@@ -818,8 +818,6 @@ describe('buildcontrol', function() {
           // Run the scenario, it should fetch the remote repo before committing.
           return execScenario(function (err, stdout, stderr) {
             expect(err).to.equal(null);
-            console.log(stdout);
-            console.log(stderr);
             expect(stdout).not.to.contain('Counting objects');
           });
         });
