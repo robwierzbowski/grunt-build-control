@@ -147,6 +147,13 @@ Default: `false`
 Fetches `branch` from `remote` with the flag `--depth=1`. Which makes a shallow clone with a history truncated to the last revision. Might bring some boost on long-history repositories. **Note, you must have [Git](http://git-scm.com/) `> 1.9` to use this option.**
 
 
+#### fetchProgress
+Type: `Boolean`  
+Default: `true`  
+
+Fetches `branch` from `remote` with the flags `--progress` and `--remote`. Setting this option to `false` can help to truncate the logs, useful if you are using build-control in a Continuous Deployment environment.
+
+
 #### config
 Type: `Object`  
 Default: `{}`  
