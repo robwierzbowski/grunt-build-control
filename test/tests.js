@@ -797,4 +797,32 @@ describe('buildcontrol', function() {
         });
     });
   });
+
+
+  describe('quiet fetch', function () {
+    it('should suppress fetch progress if the `fetchProgress` flag is unset', function () {
+      return Promise.resolve()
+
+        // Create the remote
+        .then(function() {
+          return execScenario(function() {});
+        })
+
+        .then(function () {
+          // Make the working copy 'fresh'
+          fs.remove('repo/dist/.git');
+
+          // Add a new file to it
+          fs.writeFileSync('repo/dist/hello.txt', 'hello world!\n');
+
+          // Run the scenario, it should fetch the remote repo before committing.
+          return execScenario(function (err, stdout, stderr) {
+            expect(err).to.equal(null);
+            console.log(stdout);
+            console.log(stderr);
+            expect(stdout).not.to.contain('Counting objects');
+          });
+        });
+    });
+  });
 });

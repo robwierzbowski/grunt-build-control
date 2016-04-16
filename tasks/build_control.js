@@ -35,6 +35,7 @@ module.exports = function (grunt) {
       force: false,
       message: 'Built %sourceName% from commit %sourceCommit% on branch %sourceBranch%',
       connectCommits: true,
+      fetchProgress: true,
       shallowFetch: false,
       config: {},
 
@@ -51,6 +52,7 @@ module.exports = function (grunt) {
     };
 
     var depth = options.shallowFetch ? '--depth=1 ' : '';
+    var progress = options.fetchProgress ? '--progress --verbose ' : '';
     var localBranchExists;
     var remoteBranchExists;
 
@@ -238,7 +240,7 @@ module.exports = function (grunt) {
       log.subhead('Fetching "' + options.branch + '" ' + (options.shallowFetch ? 'files' : 'history') + ' from ' + options.remote + '.');
 
       // `--update-head-ok` allows fetch on a branch with uncommited changes
-      execWrap('git fetch --progress --verbose --update-head-ok ' + depth + remoteName + ' ' + branch, false, true);
+      execWrap('git fetch --update-head-ok ' + progress + depth + remoteName + ' ' + branch, false, true);
     }
 
     // Make the current working tree the branch HEAD without checking out files
