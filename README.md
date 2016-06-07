@@ -241,7 +241,7 @@ Running `grunt buildcontrol:local` will commit the built code to the build branc
 
 #### Working with .gitignores
 
-You may wish to commit files or directories that are ignored globally or in the source repository (e.g., bower_compontents), or make file inclusion and exclusion the responsibility of the build process alone.
+You may wish to commit files or directories that are ignored globally or in the source repository (e.g., bower_components), or make file inclusion and exclusion the responsibility of the build process alone.
 
 In order to scope gitignore rules to the build directory only, create a file named 'gitignore' in your source directory:
 
