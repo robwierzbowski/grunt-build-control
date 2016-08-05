@@ -1,10 +1,13 @@
-language: node_js
+language : generic
 before_install:
   - sudo apt-get install git
   - git config --global user.email "testuser@example.com"
   - git config --global user.name "Test User"
-  - sudo pip install awsebcli
+  - pip install --upgrade --user awsebcli
+install: npm install
+script: "npm run test"
 node_js:
+  - "6.2"
   - "5.6"
   - "4.3"
   - "4.2"
