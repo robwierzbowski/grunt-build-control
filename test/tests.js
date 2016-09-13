@@ -132,7 +132,6 @@ describe('buildcontrol', function() {
   });
 
 
-
   describe('basic deployment', function() {
     it('should have pushed a file and had the correct commit in "verify" repo', function () {
       // the current working directory is `test/mock/
@@ -161,7 +160,7 @@ describe('buildcontrol', function() {
 
         // verify that the commit actually got pushed
         .then(function () {
-          return childProcessExec('git rev-parse HEAD', {cwd: 'repo'})
+          return childProcessExec('git rev-parse HEAD', {cwd: 'repo'});
         })
         .then(function (results) {
           // the commit sha from the source repo
@@ -177,6 +176,7 @@ describe('buildcontrol', function() {
         });
     });
   });
+
 
   describe('feature branch deployment', function() {
     it('should contain the correct sourceBranch name', function(done) {
